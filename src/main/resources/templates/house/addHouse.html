@@ -5,7 +5,7 @@
   <title>添加房源页</title>
 </head>
 <body>
-<form th:action="@{/addHouse}" method="post">
+<form th:action="@{/addHouse}" method="post" enctype="multipart/form-data">
   <label>出租类别:</label>
   <select name="category">
     <option th:value="合租" selected="selected">合租</option>
