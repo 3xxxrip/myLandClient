@@ -5,7 +5,7 @@
   <title>添加房源页</title>
 </head>
 <body>
-<form th:action="@{/addHouse}" method="post">
+<form th:action="@{/addHouse}" method="post" enctype="multipart/form-data">
   <label>出租类别:</label>
   <select name="category">
     <option th:value="合租" selected="selected">合租</option>
@@ -29,9 +29,13 @@
   <label>房源介绍，限定100字:</label> <br>
   <textarea name="houseInfo"></textarea><br>
 
-  <input type="submit" th:value="提交房源信息">
-</form>
+  <label>上传房源图片:</label> <br>
+  <input type="file" name="img" multiple>单个文件不超过3mb，总大小不超过10mb <br>
 
+  <input type="submit" th:value="提交房源信息">
+</form> <br>
+<!--提示反馈信息-->
+<label th:if="${addHouseMsg!=null}" th:text="${addHouseMsg}"></label>
 <a th:href="@{/}">返回首页</a>
 </body>
 </html>

@@ -16,7 +16,7 @@ public class IndexController {
     @Autowired
     private UserServiceImpl userService;
     //管理首页跳转
-    @RequestMapping(value = {"/","/index"})
+    @RequestMapping(value = {"/","/index","/index.html"})
     public String index(){
         return "index";
     }
