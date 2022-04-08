@@ -2,8 +2,10 @@ package com.longjian.myland;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.longjian.myland.Utils.UserUtils;
 import com.longjian.myland.mapper.UserMapper;
 import com.longjian.myland.pojo.User;
+import com.longjian.myland.service.Impl.UserServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -42,6 +44,16 @@ class MyLandApplicationTests {
              users1) {
             System.out.println(user);
         }
+    }
+
+    @Autowired
+    private UserServiceImpl userService;
+    @Test
+    public void testUtils(){
+        User user = new User();
+        user.setUserName("longjian");
+        User userInDatabase = UserUtils.getUserInDatabase(userService, user);
+        System.out.println(userInDatabase);
     }
 
 }

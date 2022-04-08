@@ -33,7 +33,6 @@ public class UserController {
         if(user!=null){
             //清除之前登录失败产生的错误信息
             model.addAttribute("loginMsg", null);
-            System.out.println(user);
             //把用户信息存入session，代表已经登录过
             session.setAttribute("user", user);
             //登陆成功，重定向到首页
@@ -92,7 +91,7 @@ public class UserController {
         //提交修改
         userService.update(updateWrapper);
         //通过工具类获取数据库中user的完整信息，包括id之类的
-        User userAfterUpdate = UserUtils.getUserInDatabase(user);
+        User userAfterUpdate = UserUtils.getUserInDatabase(userService,user);
         //更新session里面的user信息
         session.setAttribute("user", userAfterUpdate);
         //修改成功，跳回修改页面
