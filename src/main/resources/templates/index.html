@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>首页</title>
+</head>
+<body>
+<p>首页</p>
+<label th:if="${session.user!=null}">欢迎[[${session.user.getUserName()}]]登录</label><br>
+
+<!--跳转登录页面，在没有登录时候显示-->
+<a th:if="${session.user==null}" th:href="@{/login.html}">去登录</a>
+
+<!--跳转注册页面，在没有登录时候显示-->
+<p th:if="${session.user==null}">没有账号？去注册---><a th:href="@{/regist.html}">注册</a></p>
+
+<!--注销，在登录之后显示-->
+<a th:if="${session.user!=null}" th:href="@{/logout}">注销</a><br>
+
+<!--跳转修改个人资料页面，在登录之后显示-->
+<a th:if="${session.user!=null}" th:href="@{/userInfo.html}">个人资料</a><br>
+
+<!--跳转上传房源页面-->
+<a th:if="${session.user!=null}" th:href="@{/addHouse.html}">我有房子要出租--->上传房源！</a><br>
+</body>
+</html>

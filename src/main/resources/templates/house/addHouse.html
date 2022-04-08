@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>添加房源页</title>
+</head>
+<body>
+<form th:action="@{/addHouse}" method="post">
+  <label>出租类别:</label>
+  <select name="category">
+    <option th:value="合租" selected="selected">合租</option>
+    <option th:value="整租">整租</option>
+  </select> <br>
+
+  <label>每月出租价格:</label>
+  <input type="text" name="price" th:placeholder="0.00">人民币 <br>
+
+  <label>房源所在城市:</label>
+  <select name="city">
+    <option th:value="长沙" selected="selected">长沙</option>
+    <option th:value="上海">上海</option>
+    <option th:value="北京">北京</option>
+    <option th:value="深圳">深圳</option>
+    <option th:value="衡阳">衡阳</option>
+    <option th:value="广州">广州</option>
+    <option th:value="杭州">杭州</option>
+  </select> <br>
+
+  <label>房源介绍，限定100字:</label> <br>
+  <textarea name="houseInfo"></textarea><br>
+
+  <input type="submit" th:value="提交房源信息">
+</form>
+
+<a th:href="@{/}">返回首页</a>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>登录页面</title>
+</head>
+<body>
+<form th:action="@{/login}" method="post">
+  <label th:text="${loginMsg}"></label><br>
+  <label>用户名:</label>
+  <input type="text" name="username" th:placeholder="用户名"> <br>
+  <label>密码:</label>
+  <input type="text" name="password" th:placeholder="密码"> <br>
+  <input type="submit" th:value="登录">
+</form>
+
+<!--跳转注册页面-->
+<p th:if="${session.user==null}">没有账号？去注册---><a th:href="@{/regist.html}">注册</a></p>
+</body>
+</html>
