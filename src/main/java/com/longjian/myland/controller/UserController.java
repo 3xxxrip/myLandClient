@@ -2,23 +2,36 @@ package com.longjian.myland.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.longjian.myland.Utils.UserUtils;
+import com.longjian.myland.mapper.FavoritesMapper;
+import com.longjian.myland.mapper.HouseImgMapper;
+import com.longjian.myland.pojo.Favorites;
+import com.longjian.myland.pojo.House;
+import com.longjian.myland.pojo.HouseImg;
 import com.longjian.myland.pojo.User;
+import com.longjian.myland.service.Impl.HouseServiceImpl;
 import com.longjian.myland.service.Impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class UserController {
 
     @Autowired
     private UserServiceImpl userService;
+    @Autowired
+    private HouseServiceImpl houseService;
 
     //登录实现
     @PostMapping("/login")
@@ -68,6 +81,19 @@ public class UserController {
             return "forward:/regist.html";
         }
     }
+    //ajax查询用户名是否存在,用于注册的时候提醒用户,暂时应用失败
+    @RequestMapping("/existUsername")
+    @ResponseBody
+    public String existUsername(String username){
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.eq("username", username);
+        User one = userService.getOne(userQueryWrapper);
+        if(one!=null){
+            return "用户名已存在";
+        }else {
+            return "";
+        }
+    }
 
     //注销用户
     @RequestMapping("/logout")
@@ -80,7 +106,7 @@ public class UserController {
 
     //修改个人资料
     @RequestMapping("/update")
-    public String update(User user,HttpSession session){
+    public String update(User user,HttpSession session,Model model){
         //因为username是不可以修改的，而且只有在登录之后才可以访问个人资料页，所以直接从session里面获取用户名，从前端网页发送过来，也一并存入user里面
         UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
         updateWrapper.set("password", user.getPassword())
@@ -94,7 +120,50 @@ public class UserController {
         User userAfterUpdate = UserUtils.getUserInDatabase(userService,user);
         //更新session里面的user信息
         session.setAttribute("user", userAfterUpdate);
+        model.addAttribute("updateMsg", "修改成功");
         //修改成功，跳回修改页面
         return "forward:/userInfo.html";
+    }
+
+    //操作房屋图片
+    @Autowired
+    private HouseImgMapper houseImgMapper;
+    //查看我的收藏房源
+    @RequestMapping("/favoriteHouse")
+    public String myFavoriteHouse(HttpSession session,Model model,@RequestParam(value = "pn",defaultValue = "1") Integer pn){
+        //此时session总的user信息是完整的，就是说是完整的在数据库中的资料
+        User user = (User) session.getAttribute("user");
+        QueryWrapper<House> houseQueryWrapper = new QueryWrapper<>();
+        //子查询条件，找出该用户所有的收藏
+        houseQueryWrapper.inSql("id", "SELECT house_id FROM favorites WHERE belong=1");
+        //生成page
+        Page<House> page=new Page<>(pn, 2);
+        Page<House> favoriteHouses = houseService.page(page, houseQueryWrapper);
+        //添加图片信息到house对象中
+        List<House> records = favoriteHouses.getRecords();
+        for (House house:records) {
+            //轮番查询各个房屋所包含的图片设置到house对象里面
+            QueryWrapper<HouseImg> imgQueryWrapper = new QueryWrapper<>();
+            imgQueryWrapper.eq("house_id", house.getId());
+            List<HouseImg> imgs = houseImgMapper.selectList(imgQueryWrapper);
+            house.setImgs(imgs);
+        }
+        //将收藏信息保存到请求域中
+        model.addAttribute("collections", favoriteHouses);
+        return "forward:/favoriteHouse.html";
+    }
+
+    @Autowired
+    private FavoritesMapper favoritesMapper;
+    //取消收藏
+    @RequestMapping("/deleteFavorite")
+    public String deleteFavorite(Integer houseid,Model model,HttpSession session){
+        //获取当前用户id
+        User user = (User) session.getAttribute("user");
+        QueryWrapper<Favorites> favoritesQueryWrapper = new QueryWrapper<>();
+        favoritesQueryWrapper.eq("belong", user.getId()).and(i->i.eq("house_id", houseid));
+        favoritesMapper.delete(favoritesQueryWrapper);
+        //删除收藏之后重新访问收藏页面
+        return "redirect:/favoriteHouse";
     }
 }

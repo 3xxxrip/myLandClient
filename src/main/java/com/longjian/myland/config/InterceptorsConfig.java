@@ -2,7 +2,6 @@ package com.longjian.myland.config;
 
 import com.longjian.myland.interceptors.LoginInterceptor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -25,7 +24,10 @@ public class InterceptorsConfig implements WebMvcConfigurer {
         //注册页不拦截，注册请求不拦截
         excludePath.add("/regist.html");
         excludePath.add("/regist");
-
+        //静态资源不拦截
+        excludePath.add("/img/**");
+        //查询用户名是否存在不拦截
+        excludePath.add("/existUsername");
         registry.addInterceptor(loginInterceptor).addPathPatterns("/**").excludePathPatterns(excludePath);
     }
 }

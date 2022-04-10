@@ -44,4 +44,16 @@ public class IndexController {
     public String toAddHouse(){
         return "house/addHouse";
     }
+
+    //跳转到租房页面
+    @RequestMapping("/pageHouse.html")
+    public String toPageHouse(){
+        return "house/pageHouse";
+    }
+
+    //跳转到收藏页面
+    @RequestMapping("/favoriteHouse.html")
+    public String toFavoriteHouse(){
+        return "house/favoriteHouse";
+    }
 }

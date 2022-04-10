@@ -6,7 +6,7 @@
 </head>
 <body>
 <form th:action="@{/login}" method="post">
-  <label th:text="${loginMsg}"></label><br>
+  <div th:if="${loginMsg!=null}" th:text="${loginMsg}"></div>
   <label>用户名:</label>
   <input type="text" name="username" th:placeholder="用户名"> <br>
   <label>密码:</label>

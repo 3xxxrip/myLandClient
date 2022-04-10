@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -23,4 +24,6 @@ public class House {
     private String houseInfo;
     private Integer belong;
     private Integer status;
+    @TableField(exist = false)
+    private List<HouseImg> imgs;
 }

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>租房页</title>
+</head>
+<script type="text/javascript" th:src="@{/js/vue.js}"></script>
+<script type="text/javascript" th:src="@{/js/axios.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery-1.7.2.js}"></script>
+<body>
+<table border="1" id="addFavorite">
+  <tr>  <th>出租方式</th>
+    <th>月租价格</th>
+    <th>所在城市</th>
+    <th>房源信息</th>
+    <th>房源图片</th>
+    <th>操作</th>
+  </tr>
+  <tr th:each="house: ${houses.records}">
+    <td th:text="${house.category}"></td>
+    <td th:text="${house.price}"></td>
+    <td th:text="${house.city}"></td>
+    <td th:text="${house.houseInfo}"></td>
+    <td>
+      <ol >
+        <li th:each="img: ${house.imgs}"><br>
+          <img th:src="@{'/img/houseImg/'+${img.img}}" alt="房屋图片" height="50PX" width="80PX">
+        </li>
+      </ol>
+    </td>
+    <td >
+<!--      <a th:href="@{'/addFavorite?houseId='+${house.id}+'&pn='+${houses.current}}">租用</a>/-->
+<!--      这里不能用id，因为这个是会生成很多个的，id就不唯一了，vue函数就不会生效了-->
+        <a @click="addFavorite" th:href="@{/addFavorite}"  th:name="${house.id}">收藏</a>
+
+    </td>
+  </tr>
+</table><br>
+<a th:href="@{/pageHouse?pn=1}">首页</a>
+<a id="pre" th:href="@{'/pageHouse?pn='+${houses.getCurrent()-1}}" th:name="${houses.getCurrent()}">上一页</a>
+
+<a th:if="${houses.hasPrevious()==true}" th:href="@{'/pageHouse?pn='+${houses.getCurrent()-1}}">[[${houses.getCurrent()-1}]]</a>
+&lt;[[${houses.getCurrent()}]]&gt;
+<a th:if="${houses.hasNext()==true}" th:href="@{'/pageHouse?pn='+${houses.getCurrent()+1}}">[[${houses.getCurrent()+1}]]</a>
+
+<a id="next" th:href="@{'/pageHouse?pn='+${houses.getCurrent()+1}}" th:name="${houses.getPages()}">下一页</a>
+<a th:href="@{'/pageHouse?pn='+${houses.getPages()}}">尾页</a>
+
+<!--输入页码进行跳转-->
+<input id="max" th:value="${houses.getPages()}" type="hidden">
+到第<input id="pn_input">页
+<input id="confirm" value="确定" type="button">
+
+<label>总房源数量:[[${houses.total}]]</label>
+<label>总页数:[[${houses.pages}]]</label><br>
+<br>
+<label><a th:href="@{/favoriteHouse}">去看看我的收藏</a></label>
+<br>
+<br>
+<a th:href="@{/}">返回网站首页</a>
+
+<script type="text/javascript">
+  $("#confirm").click(function () {
+    //检查输入页码进行跳转的
+    var pn=$("#pn_input").val();
+    var max=$("#max").val();
+    if(pn>0&&pn<=max){
+      location.href="http://localhost:3030/pageHouse?pn="+pn;
+    }else{
+      alert("总共"+max+"页，你输入的页码超出范围了")
+      return false
+    }
+  })
+</script>
+<script type="text/javascript">
+  //动态添加收藏的
+  new Vue({
+    el:"#addFavorite",
+    methods:{
+      addFavorite:function (event) {
+        axios({
+          method:"post",
+          url:event.target.href,
+          params:{
+            houseId:event.target.name
+          }
+        }).then(function (response) {
+          alert(response.data);
+        });
+        event.preventDefault();
+      }
+    }
+  });
+</script>
+<script type="text/javascript">
+  //上下页的
+  // 点击上一页
+  var pre=document.getElementById("pre");
+  // 点击下一页
+  var next=document.getElementById("next");
+  //当前页码
+  var current=pre.getAttribute("name");
+  //返回总页数
+  var totalPages=next.getAttribute("name")
+  pre.onclick=function () {
+    if(current==1){
+      alert("已经是第一页了");
+      return false;
+    }
+  }
+  next.onclick=function () {
+    if(current===totalPages){
+      alert("已经是最后一页了");
+      return false;
+    }
+  }
+</script>
+</body>
+</html>

@@ -3,26 +3,113 @@
 <head>
   <meta charset="UTF-8">
   <title>注册页面</title>
+  <script type="text/javascript" th:src="@{/js/vue.js}"></script>
+  <script type="text/javascript" th:src="@{/js/axios.min.js}"></script>
+  <script type="text/javascript" th:src="@{/js/jquery-1.7.2.js}"></script>
+  <script type="text/javascript">
+    window.onload=function () {
+      var userName=document.getElementById("userName");
+      var userNameMsg=document.getElementById("userNameMsg");
+      var userNamePattern =/^\w{5,12}$/;
+      userName.onblur= function click1 () {
+        if(!userNamePattern.test(userName.value)){
+          userNameMsg.innerText="请输入的5-12位的用户名"
+        }else{
+          userNameMsg.innerText="√"
+        }
+      }
+
+      var password=document.getElementById(`password`)
+      var passwordMsg=document.getElementById('passwordMsg')
+      var passwordPattern =/^\w{5,12}$/;
+      password.onblur=function () {
+
+        if(!passwordPattern.test(password.value)){
+          passwordMsg.innerText="请输入5-12位的密码"
+        }else {
+          passwordMsg.innerText="√"
+        }
+      }
+
+      var repassword=document.getElementById(`repassword`)
+      var repasswordMsg=document.getElementById('repasswordMsg')
+      repassword.onblur=function () {
+        if(repassword.value!==password.value){
+          repasswordMsg.innerText="两次密码不一致"
+        }else {
+          repasswordMsg.innerText="√"
+        }
+      }
+
+      var email=document.getElementById(`email`)
+      var emailMsg=document.getElementById('emailMsg')
+      var emailPattern =  /^[a-z\d]+(\.[a-z\d]+)*@([\da-z](-[\da-z])?)+(\.{1,2}[a-z]+)+$/;
+      email.onblur=function () {
+
+        if(!emailPattern.test(email.value)){
+          emailMsg.innerText="请输入正确的邮箱格式"
+        }else {
+          emailMsg.innerText="√"
+        }
+      }
+      var submit=document.getElementById("submit");
+      submit.onclick=function () {
+        if(!passwordPattern.test(userName.value)||!passwordPattern.test(password.value)||repassword.value!==password.value||!emailPattern.test(email.value)){
+          alert("请正确填写注册信息")
+          return false;
+        }
+      }
+    }
+  </script>
 </head>
 <body>
-<form th:action="@{/regist}" method="post">
-  <label th:text="${registMsg}"></label><br>
+<form th:action="@{/regist}" method="post" >
+  <p th:if="${registMsg!=null}" th:text="${registMsg}"></p>
+
   <label>用户名:</label>
-  <input type="text" name="userName" th:placeholder="用户名"> <br>
+  <input type="text" name="userName" th:placeholder="用户名" id="userName">
+  <!--  <div id="check">-->
+  <!--    <a th:href="@{/existUsername}"  @click="existUsername">是否存在用户名？</a>-->
+  <!--  </div>-->
+
+  <label id="userNameMsg"></label> <br>
 
   <label>密码:</label>
-  <input type="text" name="password" th:placeholder="密码"> <br>
+  <input type="text" name="password" th:placeholder="密码" id="password"><label id="passwordMsg"></label> <br>
+
+  <label>确认密码:</label>
+  <input type="text" th:placeholder="确认密码" id="repassword"><label id="repasswordMsg"></label> <br>
 
   <label>真实姓名:</label>
-  <input type="text" name="realName" th:placeholder="真实姓名"> <br>
+  <input type="text" name="realName" th:placeholder="真实姓名" id="realName"><label id="realNameMsg"></label> <br>
 
   <label>电话号码:</label>
-  <input type="text" name="phone" th:placeholder="电话号码"> <br>
+  <input type="text" name="phone" th:placeholder="电话号码" id="phone"><label id="phoneMsg"></label> <br>
 
   <label>邮箱:</label>
-  <input type="text" name="email" th:placeholder="邮箱"> <br>
+  <input type="text" name="email" th:placeholder="邮箱" id="email"><label id="emailMsg"></label> <br>
 
-  <input type="submit" th:value="注册">
+  <input type="submit" th:value="注册" id="submit">
 </form>
+<a th:href="@{/}">返回首页</a>
+<!--<script type="text/javascript">-->
+<!--  new Vue({-->
+<!--    el:"#check",-->
+<!--    methods:{-->
+<!--      existUsername:function (event) {-->
+<!--        axios({-->
+<!--          method:"post",-->
+<!--          url:event.target.href,-->
+<!--          params:{-->
+<!--            username:$("#userName").val()-->
+<!--          }-->
+<!--        }).then(function (response) {-->
+<!--          alert(response.data);-->
+<!--        });-->
+<!--        event.preventDefault();-->
+<!--      }-->
+<!--    }-->
+<!--  });-->
+<!--</script>-->
 </body>
 </html>
