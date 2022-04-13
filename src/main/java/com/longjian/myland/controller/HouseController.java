@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
@@ -64,14 +65,46 @@ public class HouseController {
 
     //商城出租页面显示
     @RequestMapping("/pageHouse")
-    public String pageHouse(@RequestParam(value = "pn",defaultValue = "1") Integer pn,Model model,@RequestParam(value = "houseId",required = false) Integer houseId,HttpSession session){
+    public String pageHouse(@RequestParam(value = "pn",defaultValue = "1") Integer pn, Model model,
+                            @RequestParam(value = "city",required = false,defaultValue = "长沙") String city,
+                            @RequestParam(value = "min",required = false,defaultValue = "0")String min,
+                            @RequestParam(value = "max",required = false,defaultValue = "0")String max){
+        if(min.equals("null")&&max.equals("null")){
+            min="0";
+            max="0";
+        }
+        Integer minx = new Integer(min);
+        Integer maxx = new Integer(max);
         //清除收藏回显信息
         model.addAttribute("addFavoriteMsg", null);
         //构造分页参数,第一个参数是当前页，第二个参数是每页显示多少行
         Page<House> page=new Page<>(pn,2);
         QueryWrapper<House> queryWrapper = new QueryWrapper<>();
-        //查询所有状态为1的房源进行显示，已出租2、未出租1、未审核0、已下架3
-        queryWrapper.eq("status", 1);
+        //有筛选的情况
+        if(city!=null&&minx>=0&&maxx!=0){
+            BigDecimal min1 = new BigDecimal(minx);
+            BigDecimal max1 = new BigDecimal(maxx);
+            //BigDecimal比较大小,这里就是说min1>0，且max1>min
+            if(min1.compareTo(max1) ==-1&& min1.compareTo(new BigDecimal(0)) > -1){
+                //查询价格在min和max之间的城市为city、status为1的城市
+                queryWrapper.between("price", min1, max1).eq("status", 1).eq("city", city);
+                model.addAttribute("city", city);
+                model.addAttribute("min",minx);
+                model.addAttribute("max",maxx);
+            }
+        }else if(city!=null&&minx==0&&maxx==0){
+            //在只传过来筛选城市的房源，价格不做要求
+            queryWrapper.eq("status", 1).eq("city", city);
+            model.addAttribute("city", city);
+            model.addAttribute("min",null);
+            model.addAttribute("max",null);
+        } else{
+            //查询所有状态为1的房源进行显示，已出租2、未出租1、未审核0、已下架3
+            model.addAttribute("city", null);
+            model.addAttribute("min",0);
+            model.addAttribute("max",0);
+            queryWrapper.eq("status", 1);
+        }
         Page<House> housePage = houseService.page(page, queryWrapper);
         //添加图片信息到house对象中
         List<House> records = housePage.getRecords();
@@ -91,7 +124,7 @@ public class HouseController {
     //收藏房源功能实现,处理的ajax请求
     @RequestMapping("/addFavorite")
     @ResponseBody
-    public String addFavorite(@RequestParam("houseId") Integer houseId,HttpSession session,Model model){
+    public String addFavorite(@RequestParam("houseId") Integer houseId,HttpSession session){
         //首先判断房源是否存在
         House byId = houseService.getById(houseId);
         if(byId!=null){//房源存在

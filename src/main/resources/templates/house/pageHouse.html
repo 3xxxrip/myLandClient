@@ -8,7 +8,25 @@
 <script type="text/javascript" th:src="@{/js/axios.min.js}"></script>
 <script type="text/javascript" th:src="@{/js/jquery-1.7.2.js}"></script>
 <body>
+<!--  筛选房源信息-->
+<div>
+  <label>要求房源所在城市:</label>
+  <select name="city" id="city">
+    <option th:value="长沙" th:selected="${city=='长沙'}">长沙</option>
+    <option th:value="上海" th:selected="${city=='上海'}">上海</option>
+    <option th:value="北京" th:selected="${city=='北京'}">北京</option>
+    <option th:value="深圳" th:selected="${city=='深圳'}">深圳</option>
+    <option th:value="衡阳" th:selected="${city=='衡阳'}">衡阳</option>
+    <option th:value="广州" th:selected="${city=='广州'}">广州</option>
+    <option th:value="杭州" th:selected="${city=='杭州'}">杭州</option>
+  </select> &nbsp;&nbsp;&nbsp;&nbsp;
+  价格区间:<input id="min" type="text" name="min" th:value="${min==0?null:min}">——<input id="max" type="text" th:value="${max==0?null:max}" name="max">元<br>
+  <input type="button" id="filter" value="筛选">
+</div>
+<!--房源不为空的时候，显示所有房源信息-->
 <div th:if="${houses.total!=0}">
+
+
   <table border="1" id="addFavorite">
     <tr>  <th>出租方式</th>
       <th>月租价格</th>
@@ -39,24 +57,26 @@
   </table><br>
   <!--页面导航-->
   <div>
-    <a th:href="@{/pageHouse?pn=1}">首页</a>
-    <a id="pre" th:href="@{'/pageHouse?pn='+${houses.getCurrent()-1}}" th:name="${houses.getCurrent()}">上一页</a>
+    <a th:href="@{'/pageHouse?pn=1'+'&city='+${city==null?0:null}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}}">首页</a>
+    <a id="pre" th:href="@{'/pageHouse?pn='+${houses.getCurrent()-1}+'&city='+${city==null?null:city}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}}" th:name="${houses.getCurrent()}">上一页</a>
 
-    <a th:if="${houses.hasPrevious()==true}" th:href="@{'/pageHouse?pn='+${houses.getCurrent()-1}}">[[${houses.getCurrent()-1}]]</a>
+    <a th:if="${houses.hasPrevious()==true}" th:href="@{'/pageHouse?pn='+${houses.getCurrent()-1}+'&city='+${city==null?null:city}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}}">[[${houses.getCurrent()-1}]]</a>
     &lt;[[${houses.getCurrent()}]]&gt;
-    <a th:if="${houses.hasNext()==true}" th:href="@{'/pageHouse?pn='+${houses.getCurrent()+1}}">[[${houses.getCurrent()+1}]]</a>
+    <a th:if="${houses.hasNext()==true}" th:href="@{'/pageHouse?pn='+${houses.getCurrent()+1}+'&city='+${city==null?null:city}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}}">[[${houses.getCurrent()+1}]]</a>
 
-    <a id="next" th:href="@{'/pageHouse?pn='+${houses.getCurrent()+1}}" th:name="${houses.getPages()}">下一页</a>
-    <a th:href="@{'/pageHouse?pn='+${houses.getPages()}}">尾页</a>
+    <a id="next" th:href="@{'/pageHouse?pn='+${houses.getCurrent()+1}+'&city='+${city==null?null:city}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}}" th:name="${houses.getPages()}">下一页</a>
+    <a th:href="@{'/pageHouse?pn='+${houses.getPages()}+'&city='+${city==null?null:city}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}}">尾页</a>
 
     <!--输入页码进行跳转-->
-    <input id="max" th:value="${houses.getPages()}" type="hidden">
+    <input id="pageMax" th:value="${houses.getPages()}" type="hidden">
     到第<input id="pn_input">页
     <input id="confirm" value="确定" type="button">
     <label>总房源数量:[[${houses.total}]]</label>
     <label>总页数:[[${houses.pages}]]</label><br>
   </div>
 </div>
+
+<!--房源为空的时候提示信息-->
 <div th:if="${houses.total==0}">
   <span>暂时还没有房源上架</span>
 </div>
@@ -66,16 +86,34 @@
 <br>
 <br>
 <a th:href="@{/}">返回网站首页</a>
-
+<script type="text/javascript">
+  //筛选之后的页面跳转
+  $("#filter").click(function () {
+    var city=$("#city").val()
+    var min=$("#min").val()-0
+    var max=$("#max").val()-0
+    alert(min)
+    alert(max)
+    alert(min>max)
+    if(min>max||min<0||max<0){
+      alert("请正确输入筛选价格")
+    }else {
+      location.href="http://localhost:8080/pageHouse?city="+city+"&min="+min+"&max="+max;
+    }
+  })
+</script>
 <script type="text/javascript">
   $("#confirm").click(function () {
+    var city=$("#city").val()
+    var min=$("#min").val()
+    var max=$("#max").val()
     //检查输入页码进行跳转的
     var pn=$("#pn_input").val();
-    var max=$("#max").val();
-    if(pn>0&&pn<=max){
-      location.href="http://localhost:8080/pageHouse?pn="+pn;
+    var pageMax=$("#pageMax").val();
+    if(pn>0&&pn<=pageMax){
+      location.href="http://localhost:8080/pageHouse?pn="+pn+"&city="+city+"&min="+min+"&max"+max;
     }else{
-      alert("总共"+max+"页，你输入的页码超出范围了")
+      alert("总共"+pageMax+"页，你输入的页码超出范围了")
       return false
     }
   })
