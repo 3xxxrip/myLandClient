@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 public class HouseServiceImpl extends ServiceImpl<HouseMapper, House> implements HouseService {
     @Autowired
     private HouseMapper houseMapper;
-    //插入并且获得自增的主键id值
-    public Integer insertAndGetIdBack(House house){
-       return houseMapper.insertAndGetIdBack(house);
+    //插入并且获得自增的主键id值,在设置house_img时作用
+    public void insertAndGetIdBack(House house){
+        houseMapper.insertAndGetIdBack(house);
     }
 }

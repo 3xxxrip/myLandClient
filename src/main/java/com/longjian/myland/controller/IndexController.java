@@ -44,4 +44,64 @@ public class IndexController {
     public String toAddHouse(){
         return "house/addHouse";
     }
+
+    //跳转到租房页面
+    @RequestMapping("/pageHouse.html")
+    public String toPageHouse(){
+        return "house/pageHouse";
+    }
+
+    //跳转到收藏页面
+    @RequestMapping("/favoriteHouse.html")
+    public String toFavoriteHouse(){
+        return "house/favoriteHouse";
+    }
+
+    //跳转到我的出租
+    @RequestMapping("/myHouse.html")
+    public String toMyHouse(){
+        return "house/myHouse";
+    }
+
+    //跳转到付款页面
+    @RequestMapping("/payPage.html")
+    public String toPayPage(){
+        return "business/payPage";
+    }
+
+    //跳转到付款之后的显示订单页面
+    @RequestMapping("/afterPayPage.html")
+    public String toAfterPayPage(){
+        return "business/afterPayPage";
+    }
+
+    //跳转个人的租房记录页面
+    @RequestMapping("/rentHis.html")
+    public String toRentHis(){
+        return "user/rentHis.html";
+    }
+
+    //跳转订单详情页
+    @RequestMapping("/orderInfo.html")
+    public String toOrderInfo(){
+        return "user/orderInfo.html";
+    }
+
+    //跳转求租页面
+    @RequestMapping("/askForRent.html")
+    public String toAskForRent(){
+        return "house/askForRent.html";
+    }
+
+    //跳转添加求租信息页面
+    @RequestMapping("/addAsks.html")
+    public String toAddAsks(){
+        return "house/addAsks.html";
+    }
+
+    //跳转添加求租信息详情页
+    @RequestMapping("/askInfo.html")
+    public String toAskInfo(){
+        return "house/askInfo.html";
+    }
 }

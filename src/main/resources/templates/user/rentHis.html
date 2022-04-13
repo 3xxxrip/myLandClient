@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>租房记录</title>
+  <script type="text/javascript" th:src="@{/js/jquery-1.7.2.js}"></script>
+</head>
+<body>
+<!--有消费记录的时候，开始-->
+<div th:if="${page.total!=0}">
+  <table border="1">
+    <tr>
+      <th>订单号</th>
+      <th>租房日期</th>
+      <th>支出金额</th>
+      <th>查看详情</th>
+    </tr>
+    <tr th:each="his: ${page.records}">
+      <td th:text="${his.OrderId}"></td>
+      <td th:text="${his.purchaseTime}"></td>
+      <td th:text="${his.amount}"></td>
+      <td><a th:href="@{'/orderInfo?orderId='+${his.OrderId}+'&pn='+${page.getCurrent()}}">查看订单详情</a></td>
+    </tr>
+  </table>
+  <!--  导航开始-->
+  <div>
+    <a th:href="@{/rentHis?pn=1}">首页</a>
+    <a id="pre" th:href="@{'/rentHis?pn='+${page.getCurrent()-1}}" th:name="${page.getCurrent()}">上一页</a>
+
+    <a th:if="${page.hasPrevious()==true}" th:href="@{'/rentHis?pn='+${page.getCurrent()-1}}">[[${page.getCurrent()-1}]]</a>
+    &lt;[[${page.getCurrent()}]]&gt;
+    <a th:if="${page.hasNext()==true}" th:href="@{'/rentHis?pn='+${page.getCurrent()+1}}">[[${page.getCurrent()+1}]]</a>
+
+    <a id="next" th:href="@{'/rentHis?pn='+${page.getCurrent()+1}}" th:name="${page.getPages()}">下一页</a>
+    <a th:href="@{'/rentHis?pn='+${page.getPages()}}">尾页</a>
+    <!--输入页码进行跳转-->
+    <input id="max" th:value="${page.getPages()}" type="hidden">
+    到第<input id="pn_input">页
+    <input id="confirm" value="确定" type="button">
+
+    <label>总订单数量:[[${page.total}]]</label>
+    <label>总页数:[[${page.pages}]]</label>
+  </div>
+  <!--  导航结束-->
+</div>
+<!--有消费记录的时候，结束-->
+<div th:if="${page.total==0}">
+  <a th:href="@{pageHouse}">你还没有任何的租房记录，去租房页看看有没有心仪的房源吧!</a>
+</div>
+<label><a th:href="@{/}">返回网站首页</a> </label>
+<script type="text/javascript">
+  $("#confirm").click(function () {
+    var pn=$("#pn_input").val();
+    var max=$("#max").val();
+    if(pn>0&&pn<=max){
+      location.href="http://localhost:8080/rentHis?pn="+pn;
+    }else{
+      alert("总共"+max+"页，你输入的页码超出范围了")
+      return false
+    }
+  })
+</script>
+<script type="text/javascript">
+  // 点击上一页
+  var pre=document.getElementById("pre");
+  // 点击下一页
+  var next=document.getElementById("next");
+  //当前页码
+  var current=pre.getAttribute("name");
+  //返回总页数
+  var totalPages=next.getAttribute("name")
+  pre.onclick=function () {
+    if(current==1){
+      alert("已经是第一页了");
+      return false;
+    }
+  }
+  next.onclick=function () {
+    if(current===totalPages){
+      alert("已经是最后一页了");
+      return false;
+    }
+  }
+</script>
+</body>
+</html>

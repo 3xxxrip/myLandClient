@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>订单详情页</title>
+</head>
+<body>
+该订单涉及的房源信息:
+  <table border="1">
+    <tr>  <th>出租方式</th>
+      <th>月租价格</th>
+      <th>所在城市</th>
+      <th>房源信息</th>
+      <th>房东电话</th>
+      <th>房源图片</th>
+    </tr>
+    <tr>
+      <td th:text="${orderInfo.category}"></td>
+      <td th:text="${orderInfo.price}"></td>
+      <td th:text="${orderInfo.city}"></td>
+      <td th:text="${orderInfo.houseInfo}"></td>
+      <td th:text="${phone}"></td>
+      <td>
+        <ol>
+          <li th:each="img: ${orderInfo.imgs}"><br>
+            <img th:src="@{'/img/houseImg/'+${img.img}}" alt="房屋图片" height="50PX" width="80PX">
+          </li>
+        </ol>
+      </td>
+
+    </tr>
+  </table><br>
+  <label><a th:href="@{'/rentHis?pn='+${pn}}">继续查看其他的订单</a> </label><br>
+  <label><a th:href="@{/}">返回网站首页</a> </label>
+</body>
+</html>

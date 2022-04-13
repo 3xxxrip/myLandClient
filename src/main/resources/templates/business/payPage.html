@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>付款页面</title>
+  <script type="text/javascript" th:src="@{/js/jquery-1.7.2.js}"></script>
+</head>
+<body>
+<table>
+  <tr>
+    <th>出租方式</th>
+    <th>月租价格</th>
+    <th>所在城市</th>
+    <th>房源信息</th>
+    <th>房源图片</th>
+  </tr>
+  <tr>
+    <td th:text="${house.category}"></td>
+    <td th:text="${house.price}"></td>
+    <td th:text="${house.city}"></td>
+    <td th:text="${house.houseInfo}"></td>
+    <td>
+      <ol >
+        <li th:each="img: ${house.imgs}"><br>
+          <img th:src="@{'/img/houseImg/'+${img.img}}" alt="房屋图片" height="50PX" width="80PX">
+        </li>
+      </ol>
+    </td>
+  </tr>
+</table><br>
+你将支付:<span th:text="${house.price}"></span>元<br>
+请选择你的付款方式:
+<select name="payWay">
+  <option th:value="微信">微信</option>
+  <option th:value="支付宝">支付宝</option>
+</select>
+<input type="button" value="确认付款" id="confirm" th:houseId="${house.id}" th:price="${house.price}">
+<script>
+  $("#confirm").click(function () {
+    var houseId=$("#confirm").attr('houseId')
+    var price=$("#confirm").attr('price')
+    location.href="http://localhost:8080/rent?houseId="+houseId+"&price="+price
+  })
+</script>
+</body>
+</html>

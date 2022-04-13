@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>我的出租</title>
+  <script type="text/javascript" th:src="@{/js/vue.js}"></script>
+  <script type="text/javascript" th:src="@{/js/axios.min.js}"></script>
+  <script type="text/javascript" th:src="@{/js/jquery-1.7.2.js}"></script>
+</head>
+<body>
+<!--出租房源不为空的时候显示-->
+<div th:if="${myHousePage.total!=0}">
+  <table border="1" id="noSell">
+    <tr>  <th>出租方式</th>
+      <th>月租价格</th>
+      <th>所在城市</th>
+      <th>房源信息</th>
+      <th>房源图片</th>
+      <th>状态</th>
+      <th>操作</th>
+    </tr>
+    <tr th:each="house: ${myHousePage.records}">
+      <td th:text="${house.category}"></td>
+      <td th:text="${house.price}"></td>
+      <td th:text="${house.city}"></td>
+      <td th:text="${house.houseInfo}"></td>
+      <td>
+        <ol >
+          <li th:each="img: ${house.imgs}"><br>
+            <img th:src="@{'/img/houseImg/'+${img.img}}" alt="房屋图片" height="50PX" width="80PX">
+          </li>
+        </ol>
+      </td>
+      <td >
+<!--        房屋状态显示开始-->
+        <div>
+          <span th:if="${house.status==0}">未审核</span>
+          <span th:if="${house.status==1}">在售</span>
+          <span th:if="${house.status==2}">已出租</span>
+          <span th:if="${house.status==3}">已下架</span>
+        </div>
+<!--        房屋状态显示结束-->
+      </td>
+      <td>
+<!--        我的出租房屋操作开始-->
+        <div th:if="${house.status==3}">
+          <a  class="addHouse" th:href="@{'/myHouse?addHouseId='+${house.id}+'&pn='+${myHousePage.getCurrent()}}">重新上架</a>
+        </div>
+        <div th:if="${house.status!=3}">
+          <a  class="noSell" th:href="@{'/myHouse?houseId='+${house.id}+'&pn='+${myHousePage.getCurrent()}}">下架</a>
+        </div>
+<!--        我的出租房屋操作开始-->
+      </td>
+    </tr>
+  </table><br>
+<!--  页面导航-->
+  <div>
+    <a th:href="@{/myHouse?pn=1}">首页</a>
+    <a id="pre" th:href="@{'/myHouse?pn='+${myHousePage.getCurrent()-1}}" th:name="${myHousePage.getCurrent()}">上一页</a>
+
+    <a th:if="${myHousePage.hasPrevious()==true}" th:href="@{'/myHouse?pn='+${myHousePage.getCurrent()-1}}">[[${myHousePage.getCurrent()-1}]]</a>
+    &lt;[[${myHousePage.getCurrent()}]]&gt;
+    <a th:if="${myHousePage.hasNext()==true}" th:href="@{'/myHouse?pn='+${myHousePage.getCurrent()+1}}">[[${myHousePage.getCurrent()+1}]]</a>
+
+    <a id="next" th:href="@{'/myHouse?pn='+${myHousePage.getCurrent()+1}}" th:name="${myHousePage.getPages()}">下一页</a>
+    <a th:href="@{'/myHouse?pn='+${myHousePage.getPages()}}">尾页</a>
+    <!--输入页码进行跳转-->
+    <input id="max" th:value="${myHousePage.getPages()}" type="hidden">
+    到第<input id="pn_input">页
+    <input id="confirm" value="确定" type="button">
+
+    <label>总出租房源数量:[[${myHousePage.total}]]</label>&nbsp
+    <label>总页数:[[${myHousePage.pages}]]</label>
+    <br>
+    <label><a th:href="@{/pageHouse}">去看看房子</a> </label>
+  </div>
+  </div>
+<!--  页面导航结束-->
+<div th:if="${myHousePage.total==0}"><a th:href="@{/addHouse.html}">看起来你还没有上传任何房子，去出租！</a></div>
+<br>
+<a th:href="@{/}">返回网站首页</a>
+<script type="text/javascript">
+  // 输入页面跳转导航
+  $("#confirm").click(function () {
+    var pn=$("#pn_input").val();
+    var max=$("#max").val();
+    if(pn>0&&pn<=max){
+      location.href="http://localhost:8080/myHouse?pn="+pn;
+    }else{
+      alert("总共"+max+"页，你输入的页码超出范围了")
+      return false
+    }
+  })
+</script>
+<script type="text/javascript">
+  // 上一页下一页功能实现
+  // 点击上一页
+  var pre=document.getElementById("pre");
+  // 点击下一页
+  var next=document.getElementById("next");
+  //当前页码
+  var current=pre.getAttribute("name");
+  //返回总页数
+  var totalPages=next.getAttribute("name")
+  pre.onclick=function () {
+    if(current==1){
+      alert("已经是第一页了");
+      return false;
+    }
+  }
+  next.onclick=function () {
+    if(current===totalPages){
+      alert("已经是最后一页了");
+      return false;
+    }
+  }
+</script>
+<script type="text/javascript">
+  //提示下架信息
+  $(".noSell").click(function () {
+    alert("下架成功")
+  })
+</script>
+<script type="text/javascript">
+  //提示下架信息
+  $(".addHouse").click(function () {
+    alert("重新上架成功")
+  })
+</script>
+</body>
+</html>

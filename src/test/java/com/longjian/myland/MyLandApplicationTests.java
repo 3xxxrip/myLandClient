@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -55,5 +56,25 @@ class MyLandApplicationTests {
         User userInDatabase = UserUtils.getUserInDatabase(userService, user);
         System.out.println(userInDatabase);
     }
+
+    @Test
+    public void testForEach(){
+        User user1 = new User();
+        user1.setId(1);
+        User user2 = new User();
+        user2.setId(2);
+        int i=3;
+        List<User> users = Arrays.asList(user1, user2);
+        for (User user:users) {
+            user.setId(i++);
+        }
+        System.out.println(users);
+    }
+    @Test
+    public void testString(){
+       String s="a  b";
+        System.out.println(s);
+    }
+
 
 }

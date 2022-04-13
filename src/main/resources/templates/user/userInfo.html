@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>个人资料页面</title>
+  <script type="text/javascript" th:src="@{/js/jquery-1.7.2.js}"></script>
 </head>
 <body>
 <form th:action="@{/update}" method="post">
@@ -19,9 +20,15 @@
 
   <label>邮箱:</label>
   <input type="text" name="email" th:value="${session.user.getEmail()}"> <br>
-  <input type="submit" th:value="确认修改">
-</form>
+  <input type="submit" th:value="确认修改" id="submit">
+</form><br>
 
+<!--<label th:if="${updateMsg!=null}" th:text="${updateMsg}"></label> <br>-->
 <a th:href="@{/}">返回首页</a>
+<script type="text/javascript">
+  $("#submit").click(function () {
+    alert("修改成功")
+  })
+</script>
 </body>
 </html>

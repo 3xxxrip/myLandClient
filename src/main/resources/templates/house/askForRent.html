@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>求租区</title>
+  <script th:src="@{/js/jquery-1.7.2.js}"></script>
+</head>
+<body>
+<div>
+  <table border="1">
+    <tr>
+      <th>发布时间</th>
+      <th>求租信息</th>
+      <th>操作</th>
+    </tr>
+    <tr th:each="ask: ${page.records}">
+      <td th:text="${ask.createTime}"></td>
+      <td th:text="${ask.requestInfo}"></td>
+      <td >
+        <a th:href="@{'/askInfo?askId='+${ask.id}}">去留言</a>
+      </td>
+    </tr>
+  </table><br>
+</div>
+
+<!--  导航开始-->
+<div>
+  <a th:href="@{/askForRent?pn=1}">首页</a>
+  <a id="pre" th:href="@{'/askForRent?pn='+${page.getCurrent()-1}}" th:name="${page.getCurrent()}">上一页</a>
+
+  <a th:if="${page.hasPrevious()==true}" th:href="@{'/askForRent?pn='+${page.getCurrent()-1}}">[[${page.getCurrent()-1}]]</a>
+  &lt;[[${page.getCurrent()}]]&gt;
+  <a th:if="${page.hasNext()==true}" th:href="@{'/askForRent?pn='+${page.getCurrent()+1}}">[[${page.getCurrent()+1}]]</a>
+
+  <a id="next" th:href="@{'/askForRent?pn='+${page.getCurrent()+1}}" th:name="${page.getPages()}">下一页</a>
+  <a th:href="@{'/askForRent?pn='+${page.getPages()}}">尾页</a>
+  <!--输入页码进行跳转-->
+  <input id="max" th:value="${page.getPages()}" type="hidden">
+  到第<input id="pn_input">页
+  <input id="confirm" value="确定" type="button">
+
+  <label>总求租数量:[[${page.total}]]</label>
+  <label>总页数:[[${page.pages}]]</label>
+</div>
+<!--  导航结束-->
+<!--发布求租链接-->
+<div>
+  <a th:href="@{/addAsks.html}">我要发求租信息</a>
+</div>
+<script type="text/javascript">
+  $("#confirm").click(function () {
+    var pn=$("#pn_input").val();
+    var max=$("#max").val();
+    if(pn>0&&pn<=max){
+      location.href="http://localhost:8080/askForRent?pn="+pn;
+    }else{
+      alert("总共"+max+"页，你输入的页码超出范围了")
+      return false
+    }
+  })
+</script>
+<script type="text/javascript">
+  // 点击上一页
+  var pre=document.getElementById("pre");
+  // 点击下一页
+  var next=document.getElementById("next");
+  //当前页码
+  var current=pre.getAttribute("name");
+  //返回总页数
+  var totalPages=next.getAttribute("name")
+  pre.onclick=function () {
+    if(current==1){
+      alert("已经是第一页了");
+      return false;
+    }
+  }
+  next.onclick=function () {
+    if(current===totalPages){
+      alert("已经是最后一页了");
+      return false;
+    }
+  }
+</script>
+</body>
+</html>

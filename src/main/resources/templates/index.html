@@ -6,21 +6,48 @@
 </head>
 <body>
 <p>首页</p>
-<label th:if="${session.user!=null}">欢迎[[${session.user.getUserName()}]]登录</label><br>
-
-<!--跳转登录页面，在没有登录时候显示-->
-<a th:if="${session.user==null}" th:href="@{/login.html}">去登录</a>
-
-<!--跳转注册页面，在没有登录时候显示-->
-<p th:if="${session.user==null}">没有账号？去注册---><a th:href="@{/regist.html}">注册</a></p>
-
-<!--注销，在登录之后显示-->
-<a th:if="${session.user!=null}" th:href="@{/logout}">注销</a><br>
-
-<!--跳转修改个人资料页面，在登录之后显示-->
-<a th:if="${session.user!=null}" th:href="@{/userInfo.html}">个人资料</a><br>
-
-<!--跳转上传房源页面-->
-<a th:if="${session.user!=null}" th:href="@{/addHouse.html}">我有房子要出租--->上传房源！</a><br>
+<ul>
+  <li th:if="${session.user!=null}">
+    <label>欢迎[[${session.user.getUserName()}]]登录</label>
+    <!--注销，在登录之后显示-->
+    <a th:if="${session.user!=null}" th:href="@{/logout}">注销</a><br>
+  </li>
+  <li th:if="${session.user==null}">
+    <!--跳转登录页面，在没有登录时候显示-->
+    <a  th:href="@{/login.html}">去登录</a>
+  </li>
+  <li th:if="${session.user==null}">
+    <!--跳转注册页面，在没有登录时候显示-->
+    <p >没有账号？去注册---><a th:href="@{/regist.html}">注册</a></p>
+  </li>
+  <li th:if="${session.user!=null}">
+    <!--跳转修改个人资料页面，在登录之后显示-->
+    <a  th:href="@{/userInfo.html}">个人资料</a><br>
+  </li>
+  <li th:if="${session.user!=null}">
+    <!--跳转上传房源页面-->
+    <a  th:href="@{/addHouse.html}">我有房子要出租--->上传房源！</a><br>
+  </li>
+  <li th:if="${session.user!=null}">
+    <!--跳转查看所有审核过可出租的房源-->
+    <a th:href="@{/pageHouse}">我要租房--->查看所有房源</a><br>
+  </li>
+  <li th:if="${session.user!=null}">
+    <!--跳转查看所有我收藏的房源-->
+    <a th:href="@{/favoriteHouse}">查看我的收藏</a><br>
+  </li>
+  <li th:if="${session.user!=null}">
+    <!--跳转查看所有我出租的房源-->
+    <a th:href="@{/myHouse}">查看我的出租</a><br>
+  </li>
+  <li th:if="${session.user!=null}">
+    <!--跳转查看所有我的历史租房-->
+    <a th:href="@{/rentHis}">查看我的历史租房</a><br>
+  </li>
+  <li th:if="${session.user!=null}">
+    <!--跳转查看求租区域-->
+    <a th:href="@{/askForRent}">看看求租区</a><br>
+  </li>
+</ul>
 </body>
 </html>
