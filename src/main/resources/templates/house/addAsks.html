@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>发布求租信息</title>
+  <script th:src="@{/js/jquery-1.7.2.js}"></script>
+</head>
+<body>
+<form th:action="@{/addAsks}" method="post">
+  <table>
+    <tr>
+      <td>
+        <label>求租要求:</label><br>
+        <textarea name="askInfo" id="askInfo" placeholder="10-100字"></textarea><br>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <input type="submit" th:value="提交求租信息" id="submit">
+      </td>
+    </tr>
+  </table>
+</form> <br>
+<a th:href="@{/askForRent}">返回求租页面</a><br>
+<a th:href="@{/}">返回网站首页</a>
+<script>
+  $("#submit").click(function () {
+    var askInfo=$("#askInfo").val()
+    alert(askInfo)
+    var infoPattern=/[\u4e00-\u9fa5_a-zA-Z0-9,]{10,100}/
+    if(infoPattern.test(askInfo)){
+      alert("发布成功");
+    }else{
+      alert("留言格式不正确")
+      return false;
+    }
+  })
+</script>
+</body>
+</html>

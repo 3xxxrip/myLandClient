@@ -1,5 +1,6 @@
 package com.longjian.myland.pojo;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,8 @@ import java.sql.Timestamp;
 public class Asks {
     private Integer id;
     private Integer belong;
+    @TableField("request_info")
     private String requestInfo;
+    @TableField("create_time")
     private Timestamp createTime;
 }

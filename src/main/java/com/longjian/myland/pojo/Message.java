@@ -6,20 +6,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-//订单实体类
-public class Order {
+//留言实体类
+public class Message {
     private Integer id;
-    @TableField("order_id")
-    private String orderId;
-    private Integer belong;
-    private BigDecimal amount;
-    @TableField("payment_time")
-    private Timestamp paymentTime;
+    private String belong;
+    @TableField("message_info")
+    private String messageInfo;
+    @TableField("ask_id")
+    private Integer askId;
+    @TableField("create_time")
+    private Timestamp createTime;
 }

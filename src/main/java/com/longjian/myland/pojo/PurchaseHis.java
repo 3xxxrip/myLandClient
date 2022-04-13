@@ -1,10 +1,12 @@
 package com.longjian.myland.pojo;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Data
@@ -15,7 +17,11 @@ import java.sql.Timestamp;
 public class PurchaseHis {
     private Integer id;
     private Integer belong;
+    @TableField("house_id")
     private Integer houseId;
+    @TableField("purchase_time")
     private Timestamp purchaseTime;
-    private String houseInfo;
+    private BigDecimal amount;
+    @TableField("order_id")
+    private String OrderId;
 }

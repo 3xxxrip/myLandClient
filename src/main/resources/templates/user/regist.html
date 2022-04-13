@@ -8,6 +8,7 @@
   <script type="text/javascript" th:src="@{/js/jquery-1.7.2.js}"></script>
   <script type="text/javascript">
     window.onload=function () {
+      //验证用户输入的数据是否符合规格
       var userName=document.getElementById("userName");
       var userNameMsg=document.getElementById("userNameMsg");
       var userNamePattern =/^\w{5,12}$/;
@@ -68,9 +69,8 @@
 
   <label>用户名:</label>
   <input type="text" name="userName" th:placeholder="用户名" id="userName">
-  <!--  <div id="check">-->
-  <!--    <a th:href="@{/existUsername}"  @click="existUsername">是否存在用户名？</a>-->
-  <!--  </div>-->
+
+  <input id="check" type="button" value="是否存在用户名?">
 
   <label id="userNameMsg"></label> <br>
 
@@ -92,24 +92,25 @@
   <input type="submit" th:value="注册" id="submit">
 </form>
 <a th:href="@{/}">返回首页</a>
-<!--<script type="text/javascript">-->
-<!--  new Vue({-->
-<!--    el:"#check",-->
-<!--    methods:{-->
-<!--      existUsername:function (event) {-->
-<!--        axios({-->
-<!--          method:"post",-->
-<!--          url:event.target.href,-->
-<!--          params:{-->
-<!--            username:$("#userName").val()-->
-<!--          }-->
-<!--        }).then(function (response) {-->
-<!--          alert(response.data);-->
-<!--        });-->
-<!--        event.preventDefault();-->
-<!--      }-->
-<!--    }-->
-<!--  });-->
-<!--</script>-->
+<script>
+  // 验证用户名是否存在
+  //原生的js ajax请求
+  var check=document.getElementById("check")
+  check.onclick=function () {
+    var urlHead="http://localhost:8080/existUsername?username="
+    var username=document.getElementById("userName").value
+    var url=urlHead+username
+    var xmlhttprequest = new XMLHttpRequest();
+    xmlhttprequest.open("get",url,true)
+    xmlhttprequest.onreadystatechange=function () {
+      if(xmlhttprequest.readyState===4&& xmlhttprequest.status === 200){
+        var jsonObj=xmlhttprequest.responseText;
+        alert(jsonObj)
+      }
+    }
+    xmlhttprequest.send();
+  }
+</script>
+
 </body>
 </html>

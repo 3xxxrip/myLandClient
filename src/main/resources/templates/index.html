@@ -36,6 +36,18 @@
     <!--跳转查看所有我收藏的房源-->
     <a th:href="@{/favoriteHouse}">查看我的收藏</a><br>
   </li>
+  <li th:if="${session.user!=null}">
+    <!--跳转查看所有我出租的房源-->
+    <a th:href="@{/myHouse}">查看我的出租</a><br>
+  </li>
+  <li th:if="${session.user!=null}">
+    <!--跳转查看所有我的历史租房-->
+    <a th:href="@{/rentHis}">查看我的历史租房</a><br>
+  </li>
+  <li th:if="${session.user!=null}">
+    <!--跳转查看求租区域-->
+    <a th:href="@{/askForRent}">看看求租区</a><br>
+  </li>
 </ul>
 </body>
 </html>

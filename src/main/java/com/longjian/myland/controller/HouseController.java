@@ -2,13 +2,13 @@ package com.longjian.myland.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.longjian.myland.mapper.AskMapper;
 import com.longjian.myland.mapper.FavoritesMapper;
 import com.longjian.myland.mapper.HouseImgMapper;
-import com.longjian.myland.pojo.Favorites;
-import com.longjian.myland.pojo.House;
-import com.longjian.myland.pojo.HouseImg;
-import com.longjian.myland.pojo.User;
+import com.longjian.myland.pojo.*;
+import com.longjian.myland.service.Impl.AskServiceImpl;
 import com.longjian.myland.service.Impl.HouseServiceImpl;
+import com.longjian.myland.service.Impl.MessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,6 +33,10 @@ public class HouseController {
     private HouseImgMapper houseImgMapper;
     @Autowired
     private FavoritesMapper favoritesMapper;
+    @Autowired
+    private AskServiceImpl askService;
+    @Autowired
+    private MessageServiceImpl messageService;
     //添加房源,以及处理房源图片信息
     @RequestMapping("/addHouse")
     public String addHouse(House house, HttpSession session, @RequestPart("img")MultipartFile[] imgs, Model model) throws IOException {
@@ -57,7 +62,7 @@ public class HouseController {
         return "forward:/addHouse.html";
     }
 
-    //出租页面显示
+    //商城出租页面显示
     @RequestMapping("/pageHouse")
     public String pageHouse(@RequestParam(value = "pn",defaultValue = "1") Integer pn,Model model,@RequestParam(value = "houseId",required = false) Integer houseId,HttpSession session){
         //清除收藏回显信息
@@ -109,5 +114,49 @@ public class HouseController {
         }else{
             return "房源不存在";
         }
+    }
+
+    //显示所有的求租信息
+    @RequestMapping("/askForRent")
+    public String askForRent(@RequestParam(value = "pn",defaultValue = "1") Integer pn,Model model){
+        Page<Asks> page = new Page<>(pn, 5);
+        Page<Asks> asksPage = askService.page(page);
+        model.addAttribute("page", asksPage);
+        //请求转发到求租页面
+        return "forward:/askForRent.html";
+    }
+
+    //添加求租信息
+    @RequestMapping("/addAsks")
+    public String addAsks(String askInfo,HttpSession session){
+        User user = (User) session.getAttribute("user");
+        //添加求租信息
+        askService.save(new Asks(0, user.getId(), askInfo, new Timestamp(System.currentTimeMillis())));
+        //请求转发到求租页面
+        return "forward:/askForRent";
+    }
+
+    //求租信息详情页面，并且加载留言
+    @RequestMapping("/askInfo")
+    public String askInfo(Integer askId,@RequestParam(value = "pn",defaultValue = "1")Integer pn,Model model){
+        //首先加载求租信息内容
+        Asks ask = askService.getOne(new QueryWrapper<Asks>().eq("id", askId));
+        model.addAttribute("ask", ask);
+        //获取该条求租信息的所有留言
+        Page<Message> page = new Page<>(pn, 5);
+        QueryWrapper<Message> messageQueryWrapper = new QueryWrapper<>();
+        messageQueryWrapper.eq("ask_id", askId);
+        Page<Message> messagePage = messageService.page(page, messageQueryWrapper);
+        //添加所有的留言信息到request域中
+        model.addAttribute("messagePage", page);
+        return "forward:/askInfo.html";
+    }
+    //留言实现
+    @RequestMapping("/addMessage")
+    public String addMessage(Integer pn,Integer askId,HttpSession session,String messageInfo){
+        User user = (User) session.getAttribute("user");
+        //添加留言
+        messageService.save(new Message(0, user.getUserName(), messageInfo, askId, new Timestamp(System.currentTimeMillis())));
+        return "redirect:/askInfo?pn="+pn+"&askId="+askId;
     }
 }

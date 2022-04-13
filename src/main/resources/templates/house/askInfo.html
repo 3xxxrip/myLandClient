@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>求租详情页</title>
+  <script th:src="@{/js/jquery-1.7.2.js}"></script>
+</head>
+<body>
+<p>
+  发布时间:[<span th:text="${ask.createTime}"></span>]<br>
+  求租要求:[<span th:text="${ask.requestInfo}"></span>]
+</p>
+<p>留言:</p>
+<!--留言数不为0的时候显示留言-->
+<div th:if="${messagePage.total!=0}">
+<!--  留言显示-->
+  <div>
+    <ul th:each="message :${messagePage.records}">
+      <li th:text="'['+${message.belong}+']'+'在['+${message.createTime}+']说:'+${message.messageInfo}"></li>
+    </ul>
+  </div>
+<!--  留言导航-->
+  <!--  导航开始-->
+  <div>
+    <input type="hidden" th:name="${ask.id}" id="askId">
+    <a th:href="@{/askInfo?pn=1}">首页</a>
+    <a id="pre" th:href="@{'/askInfo?pn='+${messagePage.getCurrent()-1}+'&askId='+${ask.id}}" th:name="${messagePage.getCurrent()}">上一页</a>
+
+    <a th:if="${messagePage.hasPrevious()==true}" th:href="@{'/askInfo?pn='+${messagePage.getCurrent()-1}+'&askId='+${ask.id}}">[[${messagePage.getCurrent()-1}]]</a>
+    &lt;[[${messagePage.getCurrent()}]]&gt;
+    <a th:if="${messagePage.hasNext()==true}" th:href="@{'/askInfo?pn='+${messagePage.getCurrent()+1}+'&askId='+${ask.id}}">[[${messagePage.getCurrent()+1}]]</a>
+
+    <a id="next" th:href="@{'/askInfo?pn='+${messagePage.getCurrent()+1}+'&askId='+${ask.id}}" th:name="${messagePage.getPages()}">下一页</a>
+    <a th:href="@{'/askInfo?pn='+${messagePage.getPages()}+'&askId='+${ask.id}}">尾页</a>
+    <!--输入页码进行跳转-->
+    <input id="max" th:value="${messagePage.getPages()}" type="hidden">
+    到第<input id="pn_input">页
+    <input id="confirm" value="确定" type="button">
+
+    <label>总留言数量:[[${messagePage.total}]]</label>
+    <label>总页数:[[${messagePage.pages}]]</label>
+  </div>
+  <!--  导航结束-->
+</div>
+<!--留言数为0的时候显示-->
+<div th:if="${messagePage.total==0}">
+  &nbsp;&nbsp;&nbsp;&nbsp;<span>暂无留言</span>
+</div>
+
+<p>写个留言:</p>
+<div>
+  <form th:action="@{/addMessage}" method="get">
+    <input type="hidden" name="askId" th:value="${ask.id}">
+    <input type="hidden" name="pn" th:value="${messagePage.current}">
+    <textarea name="messageInfo" placeholder="10-100字，不能有特殊符号" id="mesInfo"></textarea><br>
+    <input type="submit" th:value="提交留言" id="submit"/>
+  </form>
+</div>
+<br>
+<div>
+  <a th:href="@{/}">返回首页</a>
+</div>
+<script type="text/javascript">
+  $("#confirm").click(function () {
+    //输入留言页面号跳转的函数
+    var askId=$("#askId").attr('name')
+    var pn=$("#pn_input").val();
+    var max=$("#max").val();
+    if(pn>0&&pn<=max){
+      location.href="http://localhost:8080/askInfo?pn="+pn+"&askId="+askId;
+    }else{
+      alert("总共"+max+"页，你输入的页码超出范围了")
+      return false
+    }
+  })
+</script>
+<script type="text/javascript">
+  // 点击上一页
+  var pre=document.getElementById("pre");
+  // 点击下一页
+  var next=document.getElementById("next");
+  //当前页码
+  var current=pre.getAttribute("name");
+  //返回总页数
+  var totalPages=next.getAttribute("name")
+  pre.onclick=function () {
+    if(current==1){
+      alert("已经是第一页了");
+      return false;
+    }
+  }
+  next.onclick=function () {
+    if(current===totalPages){
+      alert("已经是最后一页了");
+      return false;
+    }
+  }
+</script>
+<script>
+  $("#submit").click(function () {
+    //限定留言字数
+    var mesInfo=$("#mesInfo").val()
+    var infoPattern=/[\u4e00-\u9fa5_a-zA-Z0-9,，?？!！:：.。"“”]{10,100}/
+    if(infoPattern.test(mesInfo)){
+      alert("发布成功");
+    }else{
+      alert("留言格式不正确")
+      return false;
+    }
+  })
+</script>
+</body>
+</html>

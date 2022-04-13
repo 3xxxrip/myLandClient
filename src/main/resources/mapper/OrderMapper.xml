@@ -3,10 +3,9 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!--namespace就是对应的mapper全类名-->
-<mapper namespace="com.longjian.myland.mapper.HouseMapper">
+<mapper namespace="com.longjian.myland.mapper.OrderMapper">
     <!--    在xml中定义useGeneratedKeys为true,返回主键id的值,keyColumnkey和Property分别代表数据库记录主键字段和java对象成员属性名-->
-<!--    插入house数据之后，获取得到自增长键id的值返回到对象里面-->
     <insert id="insertAndGetIdBack" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
-        insert into house (`category`,`price`,`city`,`house_info`,`belong`) value (#{category},#{price},#{city},#{houseInfo},#{belong})
+        insert into `order` values(null,#{orderId},#{belong},#{amount},#{paymentTime})
     </insert>
 </mapper>

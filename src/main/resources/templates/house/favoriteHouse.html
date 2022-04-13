@@ -8,7 +8,7 @@
 <body>
 <!--收藏不为空的时候显示-->
 <div th:if="${collections.total!=0}">
-  <table border="1" id="addFavorite">
+  <table border="1">
     <tr>  <th>出租方式</th>
       <th>月租价格</th>
       <th>所在城市</th>
@@ -54,6 +54,7 @@
   <br>
   <label><a th:href="@{/pageHouse}">去看看房子</a> </label>
 </div>
+<!--收藏为空的时候显示-->
 <div th:if="${collections.total==0}"><a th:href="@{/pageHouse}">看起来你还没有收藏任何房子，去看看房子吧！</a></div>
 <br>
 <a th:href="@{/}">返回网站首页</a>
@@ -62,7 +63,7 @@
     var pn=$("#pn_input").val();
     var max=$("#max").val();
     if(pn>0&&pn<=max){
-      location.href="http://localhost:3030/favoriteHouse?pn="+pn;
+      location.href="http://localhost:8080/favoriteHouse?pn="+pn;
     }else{
       alert("总共"+max+"页，你输入的页码超出范围了")
       return false

@@ -70,6 +70,11 @@ class MyLandApplicationTests {
         }
         System.out.println(users);
     }
+    @Test
+    public void testString(){
+       String s="a  b";
+        System.out.println(s);
+    }
 
 
 }
