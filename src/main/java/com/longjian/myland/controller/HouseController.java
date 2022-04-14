@@ -66,12 +66,21 @@ public class HouseController {
     //商城出租页面显示
     @RequestMapping("/pageHouse")
     public String pageHouse(@RequestParam(value = "pn",defaultValue = "1") Integer pn, Model model,
-                            @RequestParam(value = "city",required = false,defaultValue = "长沙") String city,
+                            @RequestParam(value = "city",required = false) String city,
                             @RequestParam(value = "min",required = false,defaultValue = "0")String min,
                             @RequestParam(value = "max",required = false,defaultValue = "0")String max){
         if(min.equals("null")&&max.equals("null")){
             min="0";
             max="0";
+        }
+        if(city!=null){
+            //把null字符串转化为null值
+            if(city.equals("null")){
+                city=null;
+            }
+            else if(city.equals("")){
+                city=null;
+            }
         }
         Integer minx = new Integer(min);
         Integer maxx = new Integer(max);
@@ -101,8 +110,8 @@ public class HouseController {
         } else{
             //查询所有状态为1的房源进行显示，已出租2、未出租1、未审核0、已下架3
             model.addAttribute("city", null);
-            model.addAttribute("min",0);
-            model.addAttribute("max",0);
+            model.addAttribute("min",null);
+            model.addAttribute("max",null);
             queryWrapper.eq("status", 1);
         }
         Page<House> housePage = houseService.page(page, queryWrapper);

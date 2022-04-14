@@ -104,4 +104,34 @@ public class IndexController {
     public String toAskInfo(){
         return "house/askInfo.html";
     }
+
+    //跳转管理员登录页面
+    @RequestMapping("/managerLogin.html")
+    public String toManagerLogin(){
+        return "manager/managerLogin";
+    }
+
+    //跳转管理端首页
+    @RequestMapping("/manager/managerIndex.html")
+    public String toManagerIndex(){
+        return "manager/managerIndex";
+    }
+
+    //跳转审核房源页面
+    @RequestMapping("/manager/managerCheckHouse.html")
+    public String toManagerCheckHouse(){
+        return "manager/managerCheckHouse";
+    }
+
+    //跳转管理用户页面
+    @RequestMapping("/manager/managerCheckUsers.html")
+    public String toManagerCheckUsers(){
+        return "manager/managerCheckUsers";
+    }
+
+    //跳转管理留言页面
+    @RequestMapping("/manager/managerCheckMessage.html")
+    public String toManagerCheckMessage(){
+        return "manager/managerCheckMessage";
+    }
 }

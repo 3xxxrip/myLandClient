@@ -2,12 +2,9 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>租房页</title>
-  <script type="text/javascript" th:src="@{/js/vue.js}"></script>
-  <script type="text/javascript" th:src="@{/js/axios.min.js}"></script>
+  <title>审核房源</title>
   <script type="text/javascript" th:src="@{/js/jquery-1.7.2.js}"></script>
 </head>
-
 <body>
 <!--  筛选房源信息-->
 <div>
@@ -23,8 +20,8 @@
     <option th:value="杭州" th:selected="${city=='杭州'}">杭州</option>
   </select> &nbsp;&nbsp;&nbsp;&nbsp;
   价格区间:<input id="min" type="text" name="min" th:value="${min==0?0:min}">——<input id="max" type="text" th:value="${max==0?null:max}" name="max">元<br>
-  <input type="button" id="filter" value="筛选">
-  <input type="button" id="reset" value="重置">
+  <input type="button" id="filter" value="筛选" onclick="f1()">
+  <input type="button" id="reset" value="重置" onclick="f2()">
 </div>
 <!--房源不为空的时候，显示所有房源信息-->
 <div th:if="${houses.total!=0}">
@@ -51,29 +48,27 @@
         </ol>
       </td>
       <td >
-        <a th:href="@{'/payPage?houseId='+${house.id}}">租用</a>/
-        <!--      这里不能用id，因为这个是会生成很多个的，id就不唯一了，vue函数就不会生效了-->
-        <a @click="addFavorite" th:href="@{/addFavorite}"  th:name="${house.id}">收藏</a>
-
+        <a th:href="@{'/manager/checkHouse?pn='+${houses.getCurrent()}+'&city='+${city==null?null:city}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}+'&houseId='+${house.id}+'&yon=Y'}" onclick="f4()">审核通过</a>/
+        <a th:href="@{'/manager/checkHouse?pn='+${houses.getCurrent()}+'&city='+${city==null?null:city}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}+'&houseId='+${house.id}+'&yon=N'}" onclick="f5()">审核通过</a>
       </td>
     </tr>
   </table><br>
   <!--页面导航-->
   <div>
-    <a th:href="@{'/pageHouse?pn=1'+'&city='+${city==null?0:null}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}}">首页</a>
-    <a id="pre" th:href="@{'/pageHouse?pn='+${houses.getCurrent()-1}+'&city='+${city==null?null:city}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}}" th:name="${houses.getCurrent()}">上一页</a>
+    <a th:href="@{'/manager/checkHouse?pn=1'+'&city='+${city==null?0:null}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}}">首页</a>
+    <a id="pre" th:href="@{'/manager/checkHouse?pn='+${houses.getCurrent()-1}+'&city='+${city==null?null:city}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}}" th:name="${houses.getCurrent()}">上一页</a>
 
-    <a th:if="${houses.hasPrevious()==true}" th:href="@{'/pageHouse?pn='+${houses.getCurrent()-1}+'&city='+${city==null?null:city}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}}">[[${houses.getCurrent()-1}]]</a>
+    <a th:if="${houses.hasPrevious()==true}" th:href="@{'/manager/checkHouse?pn='+${houses.getCurrent()-1}+'&city='+${city==null?null:city}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}}">[[${houses.getCurrent()-1}]]</a>
     &lt;[[${houses.getCurrent()}]]&gt;
-    <a th:if="${houses.hasNext()==true}" th:href="@{'/pageHouse?pn='+${houses.getCurrent()+1}+'&city='+${city==null?null:city}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}}">[[${houses.getCurrent()+1}]]</a>
+    <a th:if="${houses.hasNext()==true}" th:href="@{'/manager/checkHouse?pn='+${houses.getCurrent()+1}+'&city='+${city==null?null:city}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}}">[[${houses.getCurrent()+1}]]</a>
 
-    <a id="next" th:href="@{'/pageHouse?pn='+${houses.getCurrent()+1}+'&city='+${city==null?null:city}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}}" th:name="${houses.getPages()}">下一页</a>
-    <a th:href="@{'/pageHouse?pn='+${houses.getPages()}+'&city='+${city==null?null:city}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}}">尾页</a>
+    <a id="next" th:href="@{'/manager/checkHouse?pn='+${houses.getCurrent()+1}+'&city='+${city==null?null:city}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}}" th:name="${houses.getPages()}">下一页</a>
+    <a th:href="@{'/manager/checkHouse?pn='+${houses.getPages()}+'&city='+${city==null?null:city}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}}">尾页</a>
 
     <!--输入页码进行跳转-->
     <input id="pageMax" th:value="${houses.getPages()}" type="hidden">
     到第<input id="pn_input">页
-    <input id="confirm" value="确定" type="button">
+    <input id="confirm" value="确定" type="button" onclick="f3()">
     <label>总房源数量:[[${houses.total}]]</label>
     <label>总页数:[[${houses.pages}]]</label><br>
   </div>
@@ -85,63 +80,38 @@
 </div>
 
 <br>
-<label><a th:href="@{/favoriteHouse}">去看看我的收藏</a></label>
-<br>
-<br>
-<a th:href="@{/}">返回网站首页</a>
+<a th:href="@{/manager/managerIndex.html}">返回管理员首页</a>
 <script type="text/javascript">
   //筛选之后的页面跳转
-  $("#filter").click(function () {
-    var city=$("#city").val()
-    // 把所有的var变量转化为number类型的比较大小，不然就只会取第一个数字比较会出现60大于100的现象
-    var min=$("#min").val()-0
-    var max=$("#max").val()-0
+  function f1() {
+    var city=document.getElementById("city").value
+    var min=document.getElementById("min").value-0
+    var max=document.getElementById("max").value-0
     if(min>max||min<0||max<0){
       alert("请正确输入筛选价格")
-    }else {
-      location.href="http://localhost:8080/pageHouse?city="+city+"&min="+min+"&max="+max;
+    }else{
+      location.href="http://localhost:8080/manager/checkHouse?city="+city+"&min="+min+"&max="+max;
     }
-  })
+  }
   //重置筛选信息
-  $("#reset").click(function () {
-    location.href="http://localhost:8080/pageHouse"
-  })
+  function f2() {
+    location.href="http://localhost:8080/manager/checkHouse"
+  }
 </script>
 <script type="text/javascript">
-  $("#confirm").click(function () {
-    var city=$("#city").val()
-    var min=$("#min").val()
-    var max=$("#max").val()
-    //检查输入页码进行跳转的
-    var pn=$("#pn_input").val();
-    var pageMax=$("#pageMax").val();
+  function f3() {
+    var city=document.getElementById("city").value
+    var min=document.getElementById("min").value-0
+    var max=document.getElementById("max").value-0
+    var pn=document.getElementById("pn_input").value-0
+    var pageMax=document.getElementById("pageMax").value-0
     if(pn>0&&pn<=pageMax){
-      location.href="http://localhost:8080/pageHouse?pn="+pn+"&city="+city+"&min="+min+"&max"+max;
+      location.href="http://localhost:8080/manager/checkHouse?pn="+pn+"&city="+city+"&min="+min+"&max"+max;
     }else{
       alert("总共"+pageMax+"页，你输入的页码超出范围了")
       return false
     }
-  })
-</script>
-<script type="text/javascript">
-  //动态添加收藏的
-  new Vue({
-    el:"#addFavorite",
-    methods:{
-      addFavorite:function (event) {
-        axios({
-          method:"post",
-          url:event.target.href,
-          params:{
-            houseId:event.target.name
-          }
-        }).then(function (response) {
-          alert(response.data);
-        });
-        event.preventDefault();
-      }
-    }
-  });
+  }
 </script>
 <script type="text/javascript">
   //上下页的
@@ -164,6 +134,14 @@
       alert("已经是最后一页了");
       return false;
     }
+  }
+</script>
+<script>
+  function f4() {//提示管理员通过成功
+    alert("房源审核已通过")
+  }
+  function f5() {//提示管理员房源下架
+    alert("房源已下架")
   }
 </script>
 </body>

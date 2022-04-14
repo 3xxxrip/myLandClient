@@ -6,6 +6,12 @@
 </head>
 <body th:background="@{/img/errorImg/500.jpg}">
 <p>服务器出现错误，程序员小哥正在努力抢修</p><br>
-<a th:href="@{/}">返回首页</a>
+<div th:if="${session.manager==null}">
+  <a th:href="@{/}">返回首页</a>
+</div>
+<!--在管理员登录之后错误页面返回首页就变成返回管理员登录之后的首页了-->
+<div th:if="${session.manager!=null}">
+  <a th:href="@{/manager/managerIndex.html}">返回首页</a>
+</div>
 </body>
 </html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>管理端首页</title>
+</head>
+<body>
+<ul>
+  <li th:if="${session.manager!=null}">
+    <label>欢迎管理员[[${session.manager.getUserName()}]]登录</label>
+    <!--注销，在登录之后显示-->
+    <a th:if="${session.manager!=null}" th:href="@{/logout}">注销</a><br>
+  </li>
+  <li>
+    <a th:href="@{/manager/checkHouse}">去审核房源</a>
+  </li>
+  <li>
+    <a th:href="@{/manager/checkUsers}">去管理用户</a>
+  </li>
+  <li>
+    <a th:href="@{/manager/checkMessage}">去管理留言</a>
+  </li>
+</ul>
+</body>
+</html>

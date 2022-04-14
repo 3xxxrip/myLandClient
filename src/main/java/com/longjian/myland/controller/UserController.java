@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.longjian.myland.Utils.UserUtils;
-import com.longjian.myland.mapper.FavoritesMapper;
-import com.longjian.myland.mapper.HouseImgMapper;
-import com.longjian.myland.mapper.OrderProdMapper;
-import com.longjian.myland.mapper.PurchaseHisMapper;
+import com.longjian.myland.mapper.*;
 import com.longjian.myland.pojo.*;
 import com.longjian.myland.service.Impl.HouseServiceImpl;
 import com.longjian.myland.service.Impl.PurchaseHisServiceImpl;
@@ -33,8 +30,6 @@ public class UserController {
     private HouseServiceImpl houseService;
     @Autowired
     private PurchaseHisServiceImpl purchaseHisService;
-    @Autowired
-    private PurchaseHisMapper purchaseHisMapper;
     //登录实现
     @PostMapping("/login")
     public String login(String username, String password, Model model, HttpSession session){

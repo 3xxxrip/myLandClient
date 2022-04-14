@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>首页</title>
+  <link rel="icon" href="/favicon.ico">
 </head>
 <body>
 <p>首页</p>
@@ -47,6 +48,10 @@
   <li th:if="${session.user!=null}">
     <!--跳转查看求租区域-->
     <a th:href="@{/askForRent}">看看求租区</a><br>
+  </li>
+  <li th:if="${session.manager==null&&session.user==null}">
+    <!--跳转管理员登录-->
+    <a th:href="@{/managerLogin.html}">管理员登录</a><br>
   </li>
 </ul>
 </body>
