@@ -5,6 +5,122 @@
   <title>管理留言</title>
 </head>
 <body>
-管理留言
+<!--  根据用户名，以及发言时间段来查询时间查询信息-->
+<div>
+  查询用户名:<input id="username" type="text" th:placeholder="${username==null?'输入用户名以查询':null}" th:value="${username!=null?username:null}">
+  查询关键字:<input id="keyword" type="text" th:placeholder="${keyword==null?'输入关键字以查询':null}" th:value="${keyword!=null?keyword:null}">
+  时间段:<input id="start" type="datetime-local" th:value="${start==null?null:start}">——<input id="end" type="datetime-local" th:value="${end==null?null:end}">
+  <input type="button" id="filter" value="筛选" onclick="f1()">
+  <input type="button" id="reset" value="重置" onclick="f2()">
+</div>
+
+<!--留言信息不为空的时候显示-->
+<div th:if="${messages.total!=0}">
+
+  <table border="1">
+    <tr>
+      <th>用户名</th>
+      <th>发布时间</th>
+      <th>留言内容</th>
+      <th>操作</th>
+    </tr>
+    <tr th:each="message: ${messages.records}">
+      <td th:text="${message.belong}"></td>
+      <td th:text="${message.createTime}"></td>
+      <td th:text="${message.messageInfo}"></td>
+      <td >
+        <input id="delete" type="button" th:pn="${messages.getCurrent()}" th:messageId="${message.id}" onclick="f4()" value="删除该留言">
+      </td>
+    </tr>
+  </table><br>
+  <!--页面导航-->
+  <div>
+    <a th:href="@{'/manager/checkMessage?pn=1'+'&username='+${username}+'&start='+${start}+'&end='+${end}+'&keyword='+${keyword}}">首页</a>
+    <a id="pre" th:href="@{'/manager/checkMessage?pn='+${messages.getCurrent()-1}+'&username='+${username}+'&start='+${start}+'&end='+${end}+'&keyword='+${keyword}}" th:name="${messages.getCurrent()}">上一页</a>
+
+    <a th:if="${messages.hasPrevious()==true}" th:href="@{'/manager/checkMessage?pn='+${messages.getCurrent()-1}+'&username='+${username}+'&start='+${start}+'&end='+${end}+'&keyword='+${keyword}}">[[${messages.getCurrent()-1}]]</a>
+    &lt;[[${messages.getCurrent()}]]&gt;
+    <a th:if="${messages.hasNext()==true}" th:href="@{'/manager/checkMessage?pn='+${messages.getCurrent()+1}+'&username='+${username}+'&start='+${start}+'&end='+${end}+'&keyword='+${keyword}}">[[${messages.getCurrent()+1}]]</a>
+
+    <a id="next" th:href="@{'/manager/checkMessage?pn='+${messages.getCurrent()+1}+'&username='+${username}+'&start='+${start}+'&end='+${end}+'&keyword='+${keyword}}" th:name="${messages.getPages()}">下一页</a>
+    <a th:href="@{'/manager/checkMessage?pn='+${messages.getPages()}+'&username='+${username}+'&start='+${start}+'&end='+${end}+'&keyword='+${keyword}}">尾页</a>
+
+    <!--输入页码进行跳转-->
+    <input id="pageMax" th:value="${messages.getPages()}" type="hidden">
+    到第<input id="pn_input">页
+    <input id="confirm" value="确定" type="button" onclick="f3()">
+    <label>总留言数量:[[${messages.total}]]</label>
+    <label>总页数:[[${messages.pages}]]</label><br>
+  </div>
+</div><br>
+
+<!--留言信息为空的时候显示-->
+<div th:if="${messages.total==0}">
+  <span>暂无任何留言信息</span>
+</div><br>
+<a th:href="@{/manager/managerIndex.html}">返回管理员首页</a>
+<script type="text/javascript">
+  function f1() {
+    //筛选函数
+    var start=document.getElementById("start").value
+    var end=document.getElementById("end").value
+    var username=document.getElementById("username").value
+    var keyword=document.getElementById("keyword").value
+    location.href="http://localhost:8080/manager/checkMessage?start="+start+"&end="+end+"&username="+username+"&keyword="+keyword;
+  }
+  function f2() {
+    //重置函数
+    location.href="http://localhost:8080/manager/checkMessage";
+  }
+  function f3() {
+    //跳转输入的导航页
+    var pn=document.getElementById("pn_input").value-0
+    var start=document.getElementById("start").value
+    var end=document.getElementById("end").value
+    var username=document.getElementById("username").value
+    var keyword=document.getElementById("keyword").value
+    var pageMax=document.getElementById("pageMax").value-0
+    if(pn>0&&pn<=pageMax){
+      location.href="http://localhost:8080/manager/checkMessage?pn="+pn+"&start="+start+"&end="+end+"&username="+username+"&keyword="+keyword;
+    }else{
+      alert("总共"+pageMax+"页，你输入的页码超出范围了")
+      return false
+    }
+  }
+  function f4() {
+    //提示删除留言成功
+    alert("留言删除成功")
+    var pn=document.getElementById("delete").attributes["pn"].value
+    var messageId=document.getElementById("delete").attributes["messageId"].value
+    var start=document.getElementById("start").value
+    var end=document.getElementById("end").value
+    var username=document.getElementById("username").value
+    var keyword=document.getElementById("keyword").value
+    location.href="http://localhost:8080/manager/checkMessage?pn="+pn+"&start="+start+"&end="+end+"&username="+username+"&keyword="+keyword+"&messageId="+messageId;
+  }
+</script>
+<script type="text/javascript">
+  //上下页的
+  // 点击上一页
+  var pre=document.getElementById("pre");
+  // 点击下一页
+  var next=document.getElementById("next");
+  //当前页码
+  var current=pre.getAttribute("name");
+  //返回总页数
+  var totalPages=next.getAttribute("name")
+  pre.onclick=function () {
+    if(current==1){
+      alert("已经是第一页了");
+      return false;
+    }
+  }
+  next.onclick=function () {
+    if(current===totalPages){
+      alert("已经是最后一页了");
+      return false;
+    }
+  }
+</script>
 </body>
 </html>

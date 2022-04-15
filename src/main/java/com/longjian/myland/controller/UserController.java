@@ -43,10 +43,19 @@ public class UserController {
         if(user!=null){
             //清除之前登录失败产生的错误信息
             model.addAttribute("loginMsg", null);
-            //把用户信息存入session，代表已经登录过
-            session.setAttribute("user", user);
-            //登陆成功，重定向到首页
-            return "redirect:/index";
+            if(user.getStatus()==1){
+                //用户没有被封禁，登录成功
+                //把用户信息存入session，代表已经登录过
+                session.setAttribute("user", user);
+                //登陆成功，重定向到首页
+                return "redirect:/index";
+            }else {
+                //账户被封禁
+                model.addAttribute("loginMsg", "该账户已被封禁");
+                //返回登录页
+                return "user/login";
+            }
+
         }else{
             //登陆失败，返回错误信息，返回登录页
             model.addAttribute("loginMsg", "用户信息错误请重新输入");

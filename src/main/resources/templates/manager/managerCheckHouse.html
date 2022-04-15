@@ -27,8 +27,9 @@
 <div th:if="${houses.total!=0}">
 
 
-  <table border="1" id="addFavorite">
-    <tr>  <th>出租方式</th>
+  <table border="1">
+    <tr>
+      <th>出租方式</th>
       <th>月租价格</th>
       <th>所在城市</th>
       <th>房源信息</th>
@@ -76,7 +77,7 @@
 
 <!--房源为空的时候提示信息-->
 <div th:if="${houses.total==0}">
-  <span>暂时还没有房源上架</span>
+  <span>暂时还没有房源未审核</span>
 </div>
 
 <br>

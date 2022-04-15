@@ -12,8 +12,8 @@
   <label>密码:</label>
   <input type="text" name="password" th:placeholder="密码"> <br>
   <input type="submit" th:value="登录">
-</form>
-
+</form><br>
+<a th:href="@{/}">返回首页</a><br>
 <!--跳转注册页面-->
 <p th:if="${session.user==null}">没有账号？去注册---><a th:href="@{/regist.html}">注册</a></p>
 </body>

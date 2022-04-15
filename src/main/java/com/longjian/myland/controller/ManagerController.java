@@ -3,12 +3,13 @@ package com.longjian.myland.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.longjian.myland.Utils.UserUtils;
 import com.longjian.myland.mapper.HouseImgMapper;
 import com.longjian.myland.mapper.ManagerMapper;
-import com.longjian.myland.pojo.House;
-import com.longjian.myland.pojo.HouseImg;
-import com.longjian.myland.pojo.Manager;
+import com.longjian.myland.pojo.*;
 import com.longjian.myland.service.Impl.HouseServiceImpl;
+import com.longjian.myland.service.Impl.MessageServiceImpl;
+import com.longjian.myland.service.Impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,6 +18,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -28,6 +33,10 @@ public class ManagerController {
     private HouseServiceImpl houseService;
     @Autowired
     private HouseImgMapper houseImgMapper;
+    @Autowired
+    private UserServiceImpl userService;
+    @Autowired
+    private MessageServiceImpl messageService;
 
     //管理员登录实现
     @RequestMapping("/login")
@@ -145,5 +154,207 @@ public class ManagerController {
         //上架房源
         houseUpdateWrapper.set("status", 1).eq("id", houseId);
         houseService.update(houseUpdateWrapper);
+    }
+
+    //管理用户信息
+    @RequestMapping("/checkUser")
+    public String checkUser(@RequestParam(value = "pn",defaultValue = "1") Integer pn,
+                            @RequestParam(value = "userId",required = false) Integer userId,
+                            @RequestParam(value = "bou",required = false)String bou,
+                            @RequestParam(value = "username",required = false)String username,
+                            Model model){
+        UpdateWrapper<User> userUpdateWrapper = new UpdateWrapper<>();
+        if(userId!=null){
+            //传过来userid说明要操作用户，判断是封禁还是解封
+            if(bou.equals("B")){
+                //封禁，设置status为0，B代表要封禁
+                userUpdateWrapper.set("status",0).eq("id", userId);
+                userService.update(userUpdateWrapper);
+            }else  if(bou.equals("U")){
+                //解封
+                userUpdateWrapper.set("status", 1).eq("id", userId);
+                userService.update(userUpdateWrapper);
+            }
+        }else if(username!=null){
+            //按照用户名查询用户信息
+            userUpdateWrapper.eq("username", username);
+            Page<User> userPage = new Page<>(pn, 5);
+            Page<User> page = userService.page(userPage,userUpdateWrapper);
+            model.addAttribute("users", page);
+            model.addAttribute("username",username);
+            return "forward:/manager/managerCheckUsers.html";
+        }
+        //查询所有的user
+        Page<User> userPage = new Page<>(pn, 5);
+        Page<User> page = userService.page(userPage);
+        model.addAttribute("users", page);
+        return "forward:/manager/managerCheckUsers.html";
+    }
+
+    //管理留言信息
+    @RequestMapping("/checkMessage")
+    public String checkMessage(@RequestParam(value = "pn",defaultValue = "1") Integer pn,
+                               @RequestParam(value = "messageId",required = false) Integer messageId,
+                               @RequestParam(value = "username",required = false)String username,
+                               @RequestParam(value = "start",required = false)String start,
+                               @RequestParam(value = "end",required = false)String end,
+                               @RequestParam(value = "keyword",required = false)String keyword,
+                               Model model) throws ParseException {
+        if("null".equals(username)||"".equals(username)){
+            username=null;
+        }
+        if("null".equals(start)||"".equals(start)){
+            start=null;
+        }
+        if("null".equals(end)||"".equals(end)){
+            end=null;
+        }
+        if("null".equals(keyword)||"".equals(keyword)){
+            keyword=null;
+        }
+        QueryWrapper<Message> messageQueryWrapper = new QueryWrapper<>();
+        Page<Message> page = new Page<>(pn, 5);
+        //先执行删除留言
+        if(messageId!=null){
+            //执行删除
+            messageQueryWrapper.eq("id", messageId);
+            messageService.remove(messageQueryWrapper);
+        }
+        if(username!=null&&start==null&&end==null&&keyword==null){
+            //只按照用户名查找留言信息，不管发布时间、关键字
+            //用同一个 QueryWrapper时，先清空上一个message查询产生的条件
+            messageQueryWrapper.clear();
+            messageQueryWrapper.eq("belong", username);
+            Page<Message> messagePage = messageService.page(page, messageQueryWrapper);
+            model.addAttribute("username", username);
+            model.addAttribute("start", null);
+            model.addAttribute("end", null);
+            model.addAttribute("keyword", null);
+            model.addAttribute("messages", messagePage);
+            //请求转发到管理信息页面
+            return "forward:/manager/managerCheckMessage.html";
+        }else  if(username==null&&start!=null&&end!=null&&keyword==null){
+            //只按照发布时间查找留言信息，不管发布用户、关键字
+            //转化前端穿过来的数据格式
+            String startr = start.replace('T', ' ')+":00";
+            String endr = end.replace('T', ' ')+":00";
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+            Date startd = simpleDateFormat.parse(startr);
+            Date endd = simpleDateFormat.parse(endr);
+            //这是对应数据库的datatime的日期类型
+            Timestamp startt = new Timestamp(startd.getTime());
+            Timestamp endt = new Timestamp(endd.getTime());
+            messageQueryWrapper.clear();
+//            messageQueryWrapper.between("create_time", startt, endt);mysql由于使用between时候是识别不了24的，会自动转化为下一天0点，所以用大于等于、小于等于来筛选
+            messageQueryWrapper.ge("create_time", startt).and(i->i.le("create_time", endt));
+            Page<Message> messagePage = messageService.page(page, messageQueryWrapper);
+            model.addAttribute("username", null);
+            model.addAttribute("start", start);
+            model.addAttribute("end", end);
+            model.addAttribute("keyword", null);
+            model.addAttribute("messages", messagePage);
+            //请求转发到管理信息页面
+            return "forward:/manager/managerCheckMessage.html";
+        }else if(username==null&&start==null&&end==null&&keyword!=null){
+            //只按关键字查，不管用户和时间
+            messageQueryWrapper.clear();
+            messageQueryWrapper.like("message_info", "%"+keyword+"%");
+            Page<Message> messagePage = messageService.page(page, messageQueryWrapper);
+            model.addAttribute("username", null);
+            model.addAttribute("start", null);
+            model.addAttribute("end", null);
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("messages", messagePage);
+            //请求转发到管理信息页面
+            return "forward:/manager/managerCheckMessage.html";
+        }
+        else if(username!=null&&start!=null&&end!=null&&keyword==null){
+            //按照用户名和时间来筛选信息、不管关键字
+            //转化前端穿过来的数据格式
+            String startr = start.replace('T', ' ')+":00";
+            String endr = end.replace('T', ' ')+":00";
+            //转化时间
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+            Date startd = simpleDateFormat.parse(startr);
+            Date endd = simpleDateFormat.parse(endr);
+            //这是对应数据库的datatime的日期类型
+            Timestamp startt = new Timestamp(startd.getTime());
+            Timestamp endt = new Timestamp(endd.getTime());
+            //开始查询
+            messageQueryWrapper.clear();
+//            messageQueryWrapper.eq("belong",username).between("create_time", startt, endt);
+            messageQueryWrapper.eq("belong",username).ge("create_time", startt).and(i->i.le("create_time", endt));
+            Page<Message> messagePage = messageService.page(page, messageQueryWrapper);
+            model.addAttribute("username", username);
+            model.addAttribute("start", start);
+            model.addAttribute("end", end);
+            model.addAttribute("keyword", null);
+            model.addAttribute("messages", messagePage);
+            //请求转发到管理信息页面
+            return "forward:/manager/managerCheckMessage.html";
+        }else if(username!=null&&start==null&&end==null&&keyword!=null){
+            //只按照用户名和关键字查询
+            messageQueryWrapper.clear();
+            messageQueryWrapper.eq("belong", username).like("message_info", "%"+keyword+"%");
+            Page<Message> messagePage = messageService.page(page, messageQueryWrapper);
+            model.addAttribute("username", username);
+            model.addAttribute("start", null);
+            model.addAttribute("end", null);
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("messages", messagePage);
+            //请求转发到管理信息页面
+            return "forward:/manager/managerCheckMessage.html";
+        }else if(username==null&&start!=null&&end!=null&&keyword!=null){
+            //只按照时间和关键字来查询
+            //转化前端穿过来的数据格式
+            String startr = start.replace('T', ' ')+":00";
+            String endr = end.replace('T', ' ')+":00";
+            //转化时间
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+            Date startd = simpleDateFormat.parse(startr);
+            Date endd = simpleDateFormat.parse(endr);
+            //这是对应数据库的datatime的日期类型
+            Timestamp startt = new Timestamp(startd.getTime());
+            Timestamp endt = new Timestamp(endd.getTime());
+            messageQueryWrapper.clear();
+            messageQueryWrapper.like("message_info", "%"+keyword+"%").ge("create_time", startt).and(i->i.le("create_time", endt));
+            Page<Message> messagePage = messageService.page(page, messageQueryWrapper);
+            model.addAttribute("username", null);
+            model.addAttribute("start", start);
+            model.addAttribute("end", end);
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("messages", messagePage);
+            //请求转发到管理信息页面
+            return "forward:/manager/managerCheckMessage.html";
+        }else if(username!=null&&start!=null&&end!=null&&keyword!=null){
+            //根据用户名、关键字、时间段来查询
+            messageQueryWrapper.clear();
+            //转化前端穿过来的数据格式
+            String startr = start.replace('T', ' ')+":00";
+            String endr = end.replace('T', ' ')+":00";
+            //转化时间
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+            Date startd = simpleDateFormat.parse(startr);
+            Date endd = simpleDateFormat.parse(endr);
+            //这是对应数据库的datatime的日期类型
+            Timestamp startt = new Timestamp(startd.getTime());
+            Timestamp endt = new Timestamp(endd.getTime());
+            messageQueryWrapper.eq("belong", username).like("message_info", "%"+keyword+"%").ge("create_time", startt).and(i->i.le("create_time", endt));
+            Page<Message> messagePage = messageService.page(page, messageQueryWrapper);
+            model.addAttribute("username", username);
+            model.addAttribute("start", start);
+            model.addAttribute("end", end);
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("messages", messagePage);
+            //请求转发到管理信息页面
+            return "forward:/manager/managerCheckMessage.html";
+        }
+        else{
+            //没有条件，直接查询所有的信息
+            Page<Message> messagePage = messageService.page(page);
+            model.addAttribute("messages", messagePage);
+            //请求转发到管理信息页面
+            return "forward:/manager/managerCheckMessage.html";
+        }
     }
 }

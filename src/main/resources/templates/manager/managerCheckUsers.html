@@ -5,6 +5,112 @@
   <title>管理用户</title>
 </head>
 <body>
-管理用户
+<!--  根据用户名查询信息-->
+<div>
+  查询用户名:<input id="username" type="text" th:placeholder="${username==null?'输入用户名以查询':null}" th:value="${username!=null?username:null}">
+  <input type="button" id="filter" value="查找" onclick="f1()">
+  <input type="button" id="reset" value="重置" onclick="f2()">
+</div>
+<!--用户不为空的时候显示-->
+<div th:if="${users.total!=0}">
+
+  <table border="1">
+    <tr>
+      <th>用户名</th>
+      <th>电话</th>
+      <th>邮箱</th>
+      <th>当前状态</th>
+      <th>操作</th>
+    </tr>
+    <tr th:each="user: ${users.records}">
+      <td th:text="${user.userName}"></td>
+      <td th:text="${user.phone}"></td>
+      <td th:text="${user.email}"></td>
+      <td th:text="${user.status==1?'正常':'被封禁'}"></td>
+      <td >
+          <a th:if="${user.status==1}" th:href="@{'/manager/checkUser?pn='+${users.getCurrent()}+'&userId='+${user.id}+'&bou=B'}" onclick="f4()">封禁</a>
+          <a th:if="${user.status==0}" th:href="@{'/manager/checkUser?pn='+${users.getCurrent()}+'&userId='+${user.id}+'&bou=U'}" onclick="f5()">解封</a>
+      </td>
+    </tr>
+  </table><br>
+  <!--页面导航-->
+  <div th:if="${users.total!=1}">
+    <a th:href="@{'/manager/checkUser?pn=1'}">首页</a>
+    <a id="pre" th:href="@{'/manager/checkUser?pn='+${users.getCurrent()-1}}" th:name="${users.getCurrent()}">上一页</a>
+
+    <a th:if="${users.hasPrevious()==true}" th:href="@{'/manager/checkUser?pn='+${users.getCurrent()-1}}">[[${users.getCurrent()-1}]]</a>
+    &lt;[[${users.getCurrent()}]]&gt;
+    <a th:if="${users.hasNext()==true}" th:href="@{'/manager/checkUser?pn='+${users.getCurrent()+1}}">[[${users.getCurrent()+1}]]</a>
+
+    <a id="next" th:href="@{'/manager/checkUser?pn='+${users.getCurrent()+1}}" th:name="${users.getPages()}">下一页</a>
+    <a th:href="@{'/manager/checkUser?pn='+${users.getPages()}}">尾页</a>
+
+    <!--输入页码进行跳转-->
+    <input id="pageMax" th:value="${users.getPages()}" type="hidden">
+    到第<input id="pn_input">页
+    <input id="confirm" value="确定" type="button" onclick="f3()">
+    <label>总用户数量:[[${users.total}]]</label>
+    <label>总页数:[[${users.pages}]]</label><br>
+  </div>
+</div><br>
+<!--用户信息为空的时候显示-->
+<div th:if="${users.total==0}">
+  <span>暂无用户信息</span>
+</div><br>
+
+<a th:href="@{/manager/managerIndex.html}">返回管理员首页</a>
+<script type="text/javascript">
+  function f1() {
+    var username=document.getElementById("username").value
+    location.href="http://localhost:8080/manager/checkUser?username="+username
+  }
+  function f2() {
+    location.href="http://localhost:8080/manager/checkUser"
+  }
+</script>
+<script type="text/javascript">
+  function f3() {
+    //跳转输入的导航页
+    var pn=document.getElementById("pn_input").value-0
+    var pageMax=document.getElementById("pageMax").value-0
+    if(pn>0&&pn<=pageMax){
+      location.href="http://localhost:8080/manager/checkUser?pn="+pn;
+    }else{
+      alert("总共"+pageMax+"页，你输入的页码超出范围了")
+      return false
+    }
+  }
+</script>
+<script type="text/javascript">
+  //上下页的
+  // 点击上一页
+  var pre=document.getElementById("pre");
+  // 点击下一页
+  var next=document.getElementById("next");
+  //当前页码
+  var current=pre.getAttribute("name");
+  //返回总页数
+  var totalPages=next.getAttribute("name")
+  pre.onclick=function () {
+    if(current==1){
+      alert("已经是第一页了");
+      return false;
+    }
+  }
+  next.onclick=function () {
+    if(current===totalPages){
+      alert("已经是最后一页了");
+      return false;
+    }
+  }
+</script>
+<script>
+  function f4() {//提示管理员通过成功
+    alert("用户已封禁")
+  }
+  function f5() {//提示管理员房源下架
+    alert("用户已解封")
+  }
+</script>
 </body>
 </html>
