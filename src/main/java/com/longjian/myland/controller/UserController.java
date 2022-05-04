@@ -3,6 +3,7 @@ package com.longjian.myland.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.code.kaptcha.Constants;
 import com.longjian.myland.Utils.UserUtils;
 import com.longjian.myland.mapper.*;
 import com.longjian.myland.pojo.*;
@@ -32,57 +33,73 @@ public class UserController {
     private PurchaseHisServiceImpl purchaseHisService;
     //登录实现
     @PostMapping("/login")
-    public String login(String username, String password, Model model, HttpSession session){
-        //查询条件
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        //根据用户名和密码查询用户
-        queryWrapper.eq("username", username).and(i->i.eq("password", password));
-        User user = userService.getOne(queryWrapper);
+    public String login(String username, String password, Model model, HttpSession session,String code){
+        String s = (String) session.getAttribute("kaptcha");
+        session.removeAttribute("kaptcha");
+        if(code.equalsIgnoreCase(s)){
+            //查询条件
+            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+            //根据用户名和密码查询用户
+            queryWrapper.eq("username", username).and(i->i.eq("password", password));
+            User user = userService.getOne(queryWrapper);
 
-        //如果为空说明用户存在，登录成功
-        if(user!=null){
-            //清除之前登录失败产生的错误信息
-            model.addAttribute("loginMsg", null);
-            if(user.getStatus()==1){
-                //用户没有被封禁，登录成功
-                //把用户信息存入session，代表已经登录过
-                session.setAttribute("user", user);
-                //登陆成功，重定向到首页
-                return "redirect:/index";
-            }else {
-                //账户被封禁
-                model.addAttribute("loginMsg", "该账户已被封禁");
-                //返回登录页
+            //如果为空说明用户存在，登录成功
+            if(user!=null){
+                //清除之前登录失败产生的错误信息
+                model.addAttribute("loginMsg", null);
+                if(user.getStatus()==1){
+                    //用户没有被封禁，登录成功
+                    //把用户信息存入session，代表已经登录过
+                    session.setAttribute("user", user);
+                    //登陆成功，重定向到首页
+                    return "redirect:/index";
+                }else {
+                    //账户被封禁
+                    model.addAttribute("loginMsg", "该账户已被封禁");
+                    //返回登录页
+                    return "user/login";
+                }
+
+            }else{
+                //登陆失败，返回错误信息，返回登录页
+                model.addAttribute("loginMsg", "用户信息错误请重新输入");
                 return "user/login";
             }
-
         }else{
             //登陆失败，返回错误信息，返回登录页
-            model.addAttribute("loginMsg", "用户信息错误请重新输入");
+            model.addAttribute("loginMsg", "验证码错误");
             return "user/login";
         }
     }
 
     //注册实现,只接受post请求,防止通过url跳过js检查
     @PostMapping("/regist")
-    public String regist(User user,Model model){
-        //首先判断用户名是否已经存在了
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("username", user.getUserName());
-        User exist = userService.getOne(queryWrapper);
-        //如果等于空说明没有这个用户，可以注册
-        if(exist==null){
-            //清除之前注册失败产生的错误信息
-            model.addAttribute("registMsg", null);
-            //id其实在数据库中是自增长的，但是这里不设置一个值的会mybatis就会报错，所以这里设置一下0，在数据库中id还是会正常增长
-            user.setId(0);
-            //用户不存在,现在注册，设置余额为0，状态因为数据库默认值为1，就是激活状态，所以不需要设置status
-            user.setBalance(new BigDecimal(0));
-            userService.save(user);
-            //注册成功，重定向到登录页面
-            return "redirect:/login.html";
+    public String regist(User user,Model model, HttpSession session,String code){
+        String s = (String) session.getAttribute("kaptcha");
+        session.removeAttribute("kaptcha");
+        if(code.equalsIgnoreCase(s)){
+            //首先判断用户名是否已经存在了
+            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("username", user.getUserName());
+            User exist = userService.getOne(queryWrapper);
+            //如果等于空说明没有这个用户，可以注册
+            if(exist==null){
+                //清除之前注册失败产生的错误信息
+                model.addAttribute("registMsg", null);
+                //id其实在数据库中是自增长的，但是这里不设置一个值的会mybatis就会报错，所以这里设置一下0，在数据库中id还是会正常增长
+                user.setId(0);
+                //用户不存在,现在注册，设置余额为0，状态因为数据库默认值为1，就是激活状态，所以不需要设置status
+                user.setBalance(new BigDecimal(0));
+                userService.save(user);
+                //注册成功，重定向到登录页面
+                return "redirect:/login.html";
+            }else {
+                model.addAttribute("registMsg", "用户名已存在，请重新选一个用户名");
+                //注册失败，跳转到注册页面
+                return "forward:/regist.html";
+            }
         }else {
-            model.addAttribute("registMsg", "用户名已存在，请重新选一个用户名");
+            model.addAttribute("registMsg", "验证码错误");
             //注册失败，跳转到注册页面
             return "forward:/regist.html";
         }
@@ -113,7 +130,7 @@ public class UserController {
     }
 
     //修改个人资料
-    @RequestMapping("/update")
+    @RequestMapping(value = "/update")
     public String update(User user,HttpSession session,Model model){
         //因为username是不可以修改的，而且只有在登录之后才可以访问个人资料页，所以直接从session里面获取用户名，从前端网页发送过来，也一并存入user里面
         UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();

@@ -89,6 +89,13 @@
   <label>邮箱:</label>
   <input type="text" name="email" th:placeholder="邮箱" id="email"><label id="emailMsg"></label> <br>
 
+  <div>
+    <label>验证码:</label>
+    <input type="text" name="code" id="verifycode" placeholder="请输入验证码">
+    <div>
+      <img th:src="@{/kaptcha}" style="width:100px;height:40px;" id="kaptcha" onclick="f1()"/>
+    </div>
+  </div>
   <input type="submit" th:value="注册" id="submit">
 </form>
 <a th:href="@{/}">返回首页</a>
@@ -111,6 +118,12 @@
     xmlhttprequest.send();
   }
 </script>
-
+<script>
+  function f1(){
+    //刷新验证码
+    //后面加一个随机数组让浏览器不会从缓存中找数据，真正访问到服务器
+    document.getElementById('kaptcha').src="http://localhost:8080/kaptcha?n="+Math.random();
+  }
+</script>
 </body>
 </html>

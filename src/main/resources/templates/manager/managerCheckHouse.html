@@ -34,6 +34,7 @@
       <th>所在城市</th>
       <th>房源信息</th>
       <th>房源图片</th>
+      <th>房源状态</th>
       <th>操作</th>
     </tr>
     <tr th:each="house: ${houses.records}">
@@ -41,6 +42,7 @@
       <td th:text="${house.price}"></td>
       <td th:text="${house.city}"></td>
       <td th:text="${house.houseInfo}"></td>
+
       <td>
         <ol >
           <li th:each="img: ${house.imgs}"><br>
@@ -48,9 +50,10 @@
           </li>
         </ol>
       </td>
+      <td th:text="${house.status==0?'未审核':'已下架'}"></td>
       <td >
         <a th:href="@{'/manager/checkHouse?pn='+${houses.getCurrent()}+'&city='+${city==null?null:city}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}+'&houseId='+${house.id}+'&yon=Y'}" onclick="f4()">审核通过</a>/
-        <a th:href="@{'/manager/checkHouse?pn='+${houses.getCurrent()}+'&city='+${city==null?null:city}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}+'&houseId='+${house.id}+'&yon=N'}" onclick="f5()">审核通过</a>
+        <a th:href="@{'/manager/checkHouse?pn='+${houses.getCurrent()}+'&city='+${city==null?null:city}+'&min='+${min==0?0:min}+'&max='+${max==0?0:max}+'&houseId='+${house.id}+'&yon=N'}" onclick="f5()">审核不通过</a>
       </td>
     </tr>
   </table><br>

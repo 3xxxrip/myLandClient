@@ -37,6 +37,8 @@ public class InterceptorsConfig implements WebMvcConfigurer {
         excludePath.add("/managerLogin.html");
         //登出不拦截
         excludePath.add("/logout");
+        //验证码不拦截
+        excludePath.add("/kaptcha");
         registry.addInterceptor(loginInterceptor).addPathPatterns("/**").excludePathPatterns(excludePath);
 
         //管理员拦截器配置

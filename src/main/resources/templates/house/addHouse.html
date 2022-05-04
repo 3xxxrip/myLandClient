@@ -21,7 +21,7 @@
     <tr>
       <td>
         <label>每月出租价格:</label>
-        <input type="text" name="price" th:placeholder="0.00">人民币 <br>
+        <input type="text" name="price" th:placeholder="0.00" id="price">人民币 <br>
       </td>
     </tr>
     <tr>
@@ -41,13 +41,13 @@
     <tr>
       <td>
         <label>房源介绍，限定100字:</label><br>
-        <textarea name="houseInfo"></textarea><br>
+        <textarea name="houseInfo" id="houseInfo"></textarea><br>
       </td>
     </tr>
     <tr>
       <td>
         <label>上传房源图片:</label>
-        <input type="file" name="img" multiple>单个文件不超过3mb,总大小不超过10mb<br>
+        <input type="file" name="img" multiple id="img">单个文件不超过3mb,总大小不超过10mb<br>
       </td>
     </tr>
     <tr>
@@ -59,10 +59,20 @@
 </form> <br>
 <!--提示反馈信息-->
 <a th:href="@{/}">返回首页</a>
+
 <script type="text/javascript">
+  //这是要求所有的输入信息不为空的函数
   var submit=document.getElementById("submit");
   submit.onclick=function () {
-    alert("房源添加成功,等待管理员审核");
+    var price=document.getElementById('price').value
+    var img=document.getElementById('img').value
+    var houseInfo=document.getElementById('houseInfo').value
+    if(price!==''&&img!==''&&houseInfo!==''){
+      alert("房源添加成功,等待管理员审核");
+    }else{
+      alert("请正确填写房源信息");
+      return false;
+    }
   }
 </script>
 </body>

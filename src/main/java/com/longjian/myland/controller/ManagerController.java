@@ -40,26 +40,35 @@ public class ManagerController {
 
     //管理员登录实现
     @RequestMapping("/login")
-    public String Login(String username, String password, Model model, HttpSession session){
-        //查询条件
-        QueryWrapper<Manager> queryWrapper = new QueryWrapper<>();
-        //根据用户名和密码查询用户
-        queryWrapper.eq("username", username).and(i->i.eq("password", password));
-        Manager manager = managerMapper.selectOne(queryWrapper);
+    public String Login(String username, String password, Model model, HttpSession session,String code){
+        String s = (String) session.getAttribute("kaptcha");
+        session.removeAttribute("kaptcha");
+        if(code.equalsIgnoreCase(s)){
+            //查询条件
+            QueryWrapper<Manager> queryWrapper = new QueryWrapper<>();
+            //根据用户名和密码查询用户
+            queryWrapper.eq("username", username).and(i->i.eq("password", password));
+            Manager manager = managerMapper.selectOne(queryWrapper);
 
-        //如果为空说明用户存在，登录成功
-        if(manager!=null){
-            //清除之前登录失败产生的错误信息
-            model.addAttribute("loginMsg", null);
-            //把用户信息存入session，代表已经登录过
-            session.setAttribute("manager", manager);
-            //登陆成功，重定向到首页
-            return "redirect:/manager/managerIndex.html";
-        }else{
+            //如果为空说明用户存在，登录成功
+            if(manager!=null){
+                //清除之前登录失败产生的错误信息
+                model.addAttribute("loginMsg", null);
+                //把用户信息存入session，代表已经登录过
+                session.setAttribute("manager", manager);
+                //登陆成功，重定向到首页
+                return "redirect:/manager/managerIndex.html";
+            }else{
+                //登陆失败，返回错误信息，返回登录页
+                model.addAttribute("loginMsg", "用户信息错误请重新输入");
+                return "forward:/managerLogin.html";
+            }
+        }else {
             //登陆失败，返回错误信息，返回登录页
-            model.addAttribute("loginMsg", "用户信息错误请重新输入");
+            model.addAttribute("loginMsg", "验证码错误");
             return "forward:/managerLogin.html";
         }
+
     }
 
     //审核房源实现
@@ -238,15 +247,9 @@ public class ManagerController {
             //转化前端穿过来的数据格式
             String startr = start.replace('T', ' ')+":00";
             String endr = end.replace('T', ' ')+":00";
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-            Date startd = simpleDateFormat.parse(startr);
-            Date endd = simpleDateFormat.parse(endr);
-            //这是对应数据库的datatime的日期类型
-            Timestamp startt = new Timestamp(startd.getTime());
-            Timestamp endt = new Timestamp(endd.getTime());
             messageQueryWrapper.clear();
 //            messageQueryWrapper.between("create_time", startt, endt);mysql由于使用between时候是识别不了24的，会自动转化为下一天0点，所以用大于等于、小于等于来筛选
-            messageQueryWrapper.ge("create_time", startt).and(i->i.le("create_time", endt));
+            messageQueryWrapper.ge("create_time", startr).and(i->i.le("create_time", endr));
             Page<Message> messagePage = messageService.page(page, messageQueryWrapper);
             model.addAttribute("username", null);
             model.addAttribute("start", start);
@@ -273,17 +276,10 @@ public class ManagerController {
             //转化前端穿过来的数据格式
             String startr = start.replace('T', ' ')+":00";
             String endr = end.replace('T', ' ')+":00";
-            //转化时间
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-            Date startd = simpleDateFormat.parse(startr);
-            Date endd = simpleDateFormat.parse(endr);
-            //这是对应数据库的datatime的日期类型
-            Timestamp startt = new Timestamp(startd.getTime());
-            Timestamp endt = new Timestamp(endd.getTime());
             //开始查询
             messageQueryWrapper.clear();
 //            messageQueryWrapper.eq("belong",username).between("create_time", startt, endt);
-            messageQueryWrapper.eq("belong",username).ge("create_time", startt).and(i->i.le("create_time", endt));
+            messageQueryWrapper.eq("belong",username).ge("create_time", startr).and(i->i.le("create_time", endr));
             Page<Message> messagePage = messageService.page(page, messageQueryWrapper);
             model.addAttribute("username", username);
             model.addAttribute("start", start);
@@ -309,15 +305,8 @@ public class ManagerController {
             //转化前端穿过来的数据格式
             String startr = start.replace('T', ' ')+":00";
             String endr = end.replace('T', ' ')+":00";
-            //转化时间
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-            Date startd = simpleDateFormat.parse(startr);
-            Date endd = simpleDateFormat.parse(endr);
-            //这是对应数据库的datatime的日期类型
-            Timestamp startt = new Timestamp(startd.getTime());
-            Timestamp endt = new Timestamp(endd.getTime());
             messageQueryWrapper.clear();
-            messageQueryWrapper.like("message_info", "%"+keyword+"%").ge("create_time", startt).and(i->i.le("create_time", endt));
+            messageQueryWrapper.like("message_info", "%"+keyword+"%").ge("create_time", startr).and(i->i.le("create_time", endr));
             Page<Message> messagePage = messageService.page(page, messageQueryWrapper);
             model.addAttribute("username", null);
             model.addAttribute("start", start);
@@ -332,14 +321,7 @@ public class ManagerController {
             //转化前端穿过来的数据格式
             String startr = start.replace('T', ' ')+":00";
             String endr = end.replace('T', ' ')+":00";
-            //转化时间
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-            Date startd = simpleDateFormat.parse(startr);
-            Date endd = simpleDateFormat.parse(endr);
-            //这是对应数据库的datatime的日期类型
-            Timestamp startt = new Timestamp(startd.getTime());
-            Timestamp endt = new Timestamp(endd.getTime());
-            messageQueryWrapper.eq("belong", username).like("message_info", "%"+keyword+"%").ge("create_time", startt).and(i->i.le("create_time", endt));
+            messageQueryWrapper.eq("belong", username).like("message_info", "%"+keyword+"%").ge("create_time", startr).and(i->i.le("create_time", endr));
             Page<Message> messagePage = messageService.page(page, messageQueryWrapper);
             model.addAttribute("username", username);
             model.addAttribute("start", start);

@@ -2,7 +2,6 @@ package com.longjian.myland.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.longjian.myland.mapper.AskMapper;
 import com.longjian.myland.mapper.FavoritesMapper;
 import com.longjian.myland.mapper.HouseImgMapper;
 import com.longjian.myland.pojo.*;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class HouseController {
     private MessageServiceImpl messageService;
     //添加房源,以及处理房源图片信息
     @RequestMapping("/addHouse")
-    public String addHouse(House house, HttpSession session, @RequestPart("img")MultipartFile[] imgs, Model model) throws IOException {
+    public String addHouse(House house, HttpSession session, @RequestPart("img")MultipartFile[] imgs) throws IOException {
         //获取当前session中的用户信息
         User user = (User) session.getAttribute("user");
         //同user注册同理，id设置为0，status默认为0即未审核不需要设置,belong设置为当前用户的id
@@ -53,8 +53,9 @@ public class HouseController {
             for (MultipartFile img: imgs) {
                 //通过uuid+文件上传原始名称生成一个不会重复的文件名，避免图片被覆盖
                 String imgName = UUID.randomUUID().toString();
-                String filePath="D:\\卓景京\\myLand\\src\\main\\resources\\static\\img\\houseImg\\"+imgName+".jpg";
                 //保存图片到本地
+                //System.getProperty("user.dir")直接获取当前项目在磁盘中的绝对路径
+                String filePath=System.getProperty("user.dir")+"\\src\\main\\resources\\static\\img\\houseImg\\"+imgName+".jpg";
                 img.transferTo(new File(filePath));
                 //保存房间图片信息到数据库
                 houseImgMapper.insert(new HouseImg(0, house.getId(), imgName+".jpg"));

@@ -6,19 +6,22 @@ import com.longjian.myland.Utils.UserUtils;
 import com.longjian.myland.mapper.UserMapper;
 import com.longjian.myland.pojo.User;
 import com.longjian.myland.service.Impl.UserServiceImpl;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
-
+@Disabled
 @SpringBootTest
 class MyLandApplicationTests {
     @Autowired
     private UserMapper userMapper;
+
     @Test
     void contextLoads() {
         //添加一个用户信息
@@ -75,6 +78,5 @@ class MyLandApplicationTests {
        String s="a  b";
         System.out.println(s);
     }
-
 
 }

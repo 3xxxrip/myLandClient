@@ -9,12 +9,28 @@
   <div th:if="${loginMsg!=null}" th:text="${loginMsg}"></div>
   <label>用户名:</label>
   <input type="text" name="username" th:placeholder="用户名"> <br>
-  <label>密码:</label>
+  <label>密&nbsp&nbsp&nbsp码:</label>
   <input type="text" name="password" th:placeholder="密码"> <br>
+
+  <div>
+    <label>验证码:</label>
+      <input type="text" name="code" id="verifycode" placeholder="请输入验证码">
+    <div>
+      <img th:src="@{/kaptcha}" style="width:100px;height:40px;" id="kaptcha" onclick="f1()"/>
+    </div>
+  </div>
+
+
   <input type="submit" th:value="登录">
 </form><br>
 <a th:href="@{/}">返回首页</a><br>
 <!--跳转注册页面-->
 <p th:if="${session.user==null}">没有账号？去注册---><a th:href="@{/regist.html}">注册</a></p>
+<script>
+  function f1(){
+    //后面加一个随机数组让浏览器不会从缓存中找数据，真正访问到服务器
+    document.getElementById('kaptcha').src="http://localhost:8080/kaptcha?n="+Math.random();
+  }
+</script>
 </body>
 </html>
