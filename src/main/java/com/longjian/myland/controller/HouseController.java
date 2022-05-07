@@ -55,7 +55,9 @@ public class HouseController {
                 String imgName = UUID.randomUUID().toString();
                 //保存图片到本地
                 //System.getProperty("user.dir")直接获取当前项目在磁盘中的绝对路径
-                String filePath=System.getProperty("user.dir")+"\\src\\main\\resources\\static\\img\\houseImg\\"+imgName+".jpg";
+//                String filePath=System.getProperty("user.dir")+"\\src\\main\\resources\\static\\img\\houseImg\\"+imgName+".jpg";
+                //提交图片优化，直接存到target目录里面，到时候就不需要热部署了
+                String filePath=System.getProperty("user.dir")+"\\target\\classes\\static\\img\\houseImg\\"+imgName+".jpg";
                 img.transferTo(new File(filePath));
                 //保存房间图片信息到数据库
                 houseImgMapper.insert(new HouseImg(0, house.getId(), imgName+".jpg"));
